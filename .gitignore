@@ -1,0 +1,11 @@
+# OS X
+.DS_Store*
+Icon?
+._*
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+#Other
+.env
+readme.md
