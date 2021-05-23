@@ -23,6 +23,20 @@ const app = {
         })
         .catch(err => console.dir(err))
     },
+
+    deleteProduct (id) {
+      this.API.delete(`/admin/product/${id}`)
+        .then(res => {
+          if (!res.data.success) {
+            alert('刪除產品失敗！');
+            return;
+          }
+
+          this.products.splice(this.products.findIndex((product) => product.id === id), 1);
+          alert('成功刪除產品！');
+        })
+        .catch(err => console.dir(err))
+    }
   },
 
   created () {
