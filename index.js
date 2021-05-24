@@ -8,8 +8,9 @@ const app = {
       }),
       products: [],
       targetModal: null,
-      tempProduct: {
-        imageUrl: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=2489&q=80', // 主圖網址
+      blankProduct: {
+        // https://images.unsplash.com/photo-1523275335684-37898b6baf30?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=2489&q=80
+        imageUrl: '', // 主圖網址
         imagesUrl: [], // 圖片網址一~五
         title: '',
         category: '',
@@ -20,6 +21,7 @@ const app = {
         content: '',
         is_enabled: 0
       },
+      tempProduct: {},
       isClickSendBtn: 0
     }
   },
@@ -53,31 +55,21 @@ const app = {
     },
 
     openModal (action) {
-      console.log(action);
-
       if (action === 'add') {
         this.targetModal = new bootstrap.Modal(document.getElementById('productModal'), null);
-
         this.targetModal.show();
       }
     },
 
     addProduct () {
-      console.log('addProduct()!!!');
-
       this.isClickSendBtn = 1;
 
-      // 檢查必填欄位
       if (!this.tempProduct.title || !this.tempProduct.category || !this.tempProduct.unit || !this.tempProduct.origin_price || !this.tempProduct.price) {
         alert('請檢查必填欄位！');
         return;
       }
 
-      const param = {
-        data: this.tempProduct
-      }
-
-      this.API.post(`/admin/product`, param)
+      this.API.post(`/admin/product`, { data: this.tempProduct })
         .then(res => {
           if (!res.data.success) {
             alert('新增失敗！');
@@ -87,6 +79,11 @@ const app = {
           alert('新增成功！');
           this.targetModal.hide();
           this.getData();
+
+          // reset value
+          this.isClickSendBtn = 0;
+          this.tempProduct = { ...this.blankProduct };
+          this.targetModal = null;
         })
         .catch(err => console.dir(err))
     }
