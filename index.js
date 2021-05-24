@@ -9,7 +9,6 @@ const app = {
       products: [],
       targetModal: null,
       blankProduct: {
-        // https://images.unsplash.com/photo-1523275335684-37898b6baf30?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=2489&q=80
         imageUrl: '', // 主圖網址
         imagesUrl: [], // 圖片網址一~五
         title: '',
@@ -21,7 +20,18 @@ const app = {
         content: '',
         is_enabled: 0
       },
-      tempProduct: {},
+      tempProduct: {
+        imageUrl: '', // 主圖網址
+        imagesUrl: [], // 圖片網址一~五
+        title: '',
+        category: '',
+        unit: '',
+        origin_price: '',
+        price: '',
+        description: '',
+        content: '',
+        is_enabled: 0
+      },
       isClickSendBtn: 0
     }
   },
@@ -36,6 +46,7 @@ const app = {
           }
 
           this.products = res.data.products;
+          console.log(this.products)
         })
         .catch(err => console.dir(err))
     },
@@ -69,6 +80,11 @@ const app = {
         return;
       }
 
+      // if (this.tempProduct.imagesUrl.filter(image => !image).length > 0) {
+      //   alert('不需新增的圖片欄位請刪除');
+      //   return;
+      // }
+
       this.API.post(`/admin/product`, { data: this.tempProduct })
         .then(res => {
           if (!res.data.success) {
@@ -86,6 +102,11 @@ const app = {
           this.targetModal = null;
         })
         .catch(err => console.dir(err))
+    },
+
+    addPicture () {
+      if (this.tempProduct.imagesUrl.length === 5) return;
+      this.tempProduct.imagesUrl.push('');
     }
   },
 
@@ -95,3 +116,5 @@ const app = {
 }
 
 Vue.createApp(app).mount('#app');
+
+// FIXME: modal 關掉要怎麼 reset value？
