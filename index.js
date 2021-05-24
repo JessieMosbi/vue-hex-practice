@@ -20,6 +20,7 @@ const app = {
         content: '',
         is_enabled: 0
       },
+      isClickSendBtn: 0
     }
   },
 
@@ -64,7 +65,13 @@ const app = {
     addProduct () {
       console.log('addProduct()!!!');
 
+      this.isClickSendBtn = 1;
 
+      // 檢查必填欄位
+      if (!this.tempProduct.title || !this.tempProduct.category || !this.tempProduct.unit || !this.tempProduct.origin_price || !this.tempProduct.price) {
+        alert('請檢查必填欄位！');
+        return;
+      }
 
       const param = {
         data: this.tempProduct
@@ -72,8 +79,6 @@ const app = {
 
       this.API.post(`/admin/product`, param)
         .then(res => {
-          console.log(res);
-
           if (!res.data.success) {
             alert('新增失敗！');
             return;
