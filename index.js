@@ -80,6 +80,8 @@ const app = {
 
       if (action === 'edit' || action === 'delete') this.tempProduct.id = id;
 
+      if (this.tempProduct.imagesUrl === undefined) this.tempProduct.imagesUrl = [];
+
       this.targetModal = new bootstrap.Modal(document.getElementById(modalName), null);
       this.targetModal.show();
     },
