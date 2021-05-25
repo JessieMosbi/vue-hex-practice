@@ -63,11 +63,7 @@ const app = {
           this.products.splice(this.products.findIndex((product) => product.id === this.tempProduct.id), 1);
           this.targetModal.hide();
           this.getData();
-
-          // reset value
-          this.isClickSendBtn = 0;
-          this.tempProduct = { ...this.blankProduct };
-          this.targetModal = null;
+          this.resetValue();
         })
         .catch(err => console.dir(err))
     },
@@ -111,11 +107,7 @@ const app = {
           alert('新增成功！');
           this.targetModal.hide();
           this.getData();
-
-          // reset value
-          this.isClickSendBtn = 0;
-          this.tempProduct = { ...this.blankProduct };
-          this.targetModal = null;
+          this.resetValue();
         })
         .catch(err => console.dir(err))
     },
@@ -143,13 +135,15 @@ const app = {
           alert('編輯成功！');
           this.targetModal.hide();
           this.getData();
-
-          // reset value
-          this.isClickSendBtn = 0;
-          this.tempProduct = { ...this.blankProduct };
-          this.targetModal = null;
+          this.resetValue();
         })
         .catch(err => console.dir(err))
+    },
+
+    resetValue () {
+      this.isClickSendBtn = 0;
+      this.tempProduct = { ...this.blankProduct };
+      this.targetModal = null;
     }
   },
 
