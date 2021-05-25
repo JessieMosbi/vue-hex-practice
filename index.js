@@ -155,4 +155,3 @@ const app = {
 Vue.createApp(app).mount('#app');
 
 // FIXME: modal 關掉要怎麼 reset value？
-// FIXME: modal 點選取消時要 reset value (reset value 包成一個 func)
