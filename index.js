@@ -65,9 +65,16 @@ const app = {
         .catch(err => console.dir(err))
     },
 
-    openModal (action) {
-      if (action === 'add') {
+    openModal (action, id = null) {
+      if (action === 'add' || action === 'edit') {
         this.targetModal = new bootstrap.Modal(document.getElementById('productModal'), null);
+
+        if (action === 'edit' && id) {
+          this.tempProduct = { ...this.products.find(product => product.id === id) };
+          this.tempProduct.id = id;
+          this.tempProduct.num = 1; // FIXME: html 裡面沒數量，先填 1
+        }
+
         this.targetModal.show();
       }
     },
@@ -107,6 +114,33 @@ const app = {
     addPicture () {
       if (this.tempProduct.imagesUrl.length === 5) return;
       this.tempProduct.imagesUrl.push('');
+    },
+
+    editProduct () {
+      this.isClickSendBtn = 1;
+
+      if (!this.tempProduct.title || !this.tempProduct.category || !this.tempProduct.unit || !this.tempProduct.origin_price || !this.tempProduct.price) {
+        alert('請檢查必填欄位！');
+        return;
+      }
+
+      this.API.put(`/admin/product/${this.tempProduct.id}`, { data: this.tempProduct })
+        .then(res => {
+          if (!res.data.success) {
+            alert('編輯失敗！');
+            return;
+          }
+
+          alert('編輯成功！');
+          this.targetModal.hide();
+          this.getData();
+
+          // reset value
+          this.isClickSendBtn = 0;
+          this.tempProduct = { ...this.blankProduct };
+          this.targetModal = null;
+        })
+        .catch(err => console.dir(err))
     }
   },
 
