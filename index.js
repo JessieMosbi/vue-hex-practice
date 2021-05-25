@@ -117,6 +117,11 @@ const app = {
       this.tempProduct.imagesUrl.push('');
     },
 
+    deletePicture (index) {
+      if (index === 'main') this.tempProduct.imageUrl = '';
+      else this.tempProduct.imagesUrl.splice(index, 1);
+    },
+
     editProduct () {
       this.isClickSendBtn = 1;
 
