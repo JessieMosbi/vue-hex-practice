@@ -51,32 +51,41 @@ const app = {
         .catch(err => console.dir(err))
     },
 
-    deleteProduct (id) {
-      this.API.delete(`/admin/product/${id}`)
+    deleteProduct () {
+      this.API.delete(`/admin/product/${this.tempProduct.id}`)
         .then(res => {
           if (!res.data.success) {
             alert('刪除產品失敗！');
             return;
           }
-
-          this.products.splice(this.products.findIndex((product) => product.id === id), 1);
           alert('成功刪除產品！');
+
+          this.products.splice(this.products.findIndex((product) => product.id === this.tempProduct.id), 1);
+          this.targetModal.hide();
+          this.getData();
+
+          // reset value
+          this.isClickSendBtn = 0;
+          this.tempProduct = { ...this.blankProduct };
+          this.targetModal = null;
         })
         .catch(err => console.dir(err))
     },
 
     openModal (action, id = null) {
-      if (action === 'add' || action === 'edit') {
-        this.targetModal = new bootstrap.Modal(document.getElementById('productModal'), null);
+      let modalName;
+      if (action === 'add' || action === 'edit') modalName = 'productModal';
+      else if (action === 'delete') modalName = 'delProductModal';
 
-        if (action === 'edit' && id) {
-          this.tempProduct = { ...this.products.find(product => product.id === id) };
-          this.tempProduct.id = id;
-          this.tempProduct.num = 1; // FIXME: html 裡面沒數量，先填 1
-        }
-
-        this.targetModal.show();
+      if (action === 'edit' && id) {
+        this.tempProduct = { ...this.products.find(product => product.id === id) };
+        this.tempProduct.num = 1; // FIXME: html 裡面沒數量，先填 1
       }
+
+      if (action === 'edit' || action === 'delete') this.tempProduct.id = id;
+
+      this.targetModal = new bootstrap.Modal(document.getElementById(modalName), null);
+      this.targetModal.show();
     },
 
     addProduct () {
@@ -152,3 +161,4 @@ const app = {
 Vue.createApp(app).mount('#app');
 
 // FIXME: modal 關掉要怎麼 reset value？
+// FIXME: modal 點選取消時要 reset value (reset value 包成一個 func)
