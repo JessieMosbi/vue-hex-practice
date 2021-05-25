@@ -144,10 +144,19 @@ const app = {
       this.isClickSendBtn = 0;
       this.tempProduct = { ...this.blankProduct };
       this.targetModal = null;
+    },
+
+    checkIfLogin () {
+      if (document.cookie.replace(`/(?:(?:^|.*;\s*)${this.cookieName}\s*\=\s*([^;]*).*$)|^.*$/`, "$1")) return 1;
+      else return;
     }
   },
 
   created () {
+    if (!this.checkIfLogin()) {
+      window.location.href = "/login.html";
+      return;
+    }
     this.getData();
   }
 }
