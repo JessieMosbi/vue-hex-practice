@@ -46,24 +46,6 @@ const app = {
           }
 
           this.products = res.data.products;
-          console.log(this.products)
-        })
-        .catch(err => console.dir(err))
-    },
-
-    deleteProduct () {
-      this.API.delete(`/admin/product/${this.tempProduct.id}`)
-        .then(res => {
-          if (!res.data.success) {
-            alert('刪除產品失敗！');
-            return;
-          }
-          alert('成功刪除產品！');
-
-          this.products.splice(this.products.findIndex((product) => product.id === this.tempProduct.id), 1);
-          this.targetModal.hide();
-          this.getData();
-          this.resetValue();
         })
         .catch(err => console.dir(err))
     },
@@ -79,11 +61,21 @@ const app = {
       }
 
       if (action === 'edit' || action === 'delete') this.tempProduct.id = id;
-
       if (this.tempProduct.imagesUrl === undefined) this.tempProduct.imagesUrl = [];
 
       this.targetModal = new bootstrap.Modal(document.getElementById(modalName), null);
       this.targetModal.show();
+    },
+
+    resetValue () {
+      this.isClickSendBtn = 0;
+      this.tempProduct = { ...this.blankProduct };
+      this.targetModal = null;
+    },
+
+    checkIfLogin () {
+      if (document.cookie.replace(`/(?:(?:^|.*;\s*)${this.cookieName}\s*\=\s*([^;]*).*$)|^.*$/`, "$1")) return 1;
+      else return;
     },
 
     addProduct () {
@@ -114,16 +106,6 @@ const app = {
         .catch(err => console.dir(err))
     },
 
-    addPicture () {
-      if (this.tempProduct.imagesUrl.length === 5) return;
-      this.tempProduct.imagesUrl.push('');
-    },
-
-    deletePicture (index) {
-      if (index === 'main') this.tempProduct.imageUrl = '';
-      else this.tempProduct.imagesUrl.splice(index, 1);
-    },
-
     editProduct () {
       this.isClickSendBtn = 1;
 
@@ -147,15 +129,31 @@ const app = {
         .catch(err => console.dir(err))
     },
 
-    resetValue () {
-      this.isClickSendBtn = 0;
-      this.tempProduct = { ...this.blankProduct };
-      this.targetModal = null;
+    deleteProduct () {
+      this.API.delete(`/admin/product/${this.tempProduct.id}`)
+        .then(res => {
+          if (!res.data.success) {
+            alert('刪除產品失敗！');
+            return;
+          }
+          alert('成功刪除產品！');
+
+          this.products.splice(this.products.findIndex((product) => product.id === this.tempProduct.id), 1);
+          this.targetModal.hide();
+          this.getData();
+          this.resetValue();
+        })
+        .catch(err => console.dir(err))
     },
 
-    checkIfLogin () {
-      if (document.cookie.replace(`/(?:(?:^|.*;\s*)${this.cookieName}\s*\=\s*([^;]*).*$)|^.*$/`, "$1")) return 1;
-      else return;
+    addPicture () {
+      if (this.tempProduct.imagesUrl.length === 5) return;
+      this.tempProduct.imagesUrl.push('');
+    },
+
+    deletePicture (index) {
+      if (index === 'main') this.tempProduct.imageUrl = '';
+      else this.tempProduct.imagesUrl.splice(index, 1);
     }
   },
 
