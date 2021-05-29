@@ -92,7 +92,7 @@
                     刪除主圖片
                   </button>
                 </div>
-                <template v-for="(image, index) in tempProduct.imagesUrl">
+                <template v-for="(image, index) in tempProduct.imagesUrl" :key="index">
                   <div class="mb-1">
                     <div class="form-group">
                       <label for="imageUrl">輸入圖片網址</label>
