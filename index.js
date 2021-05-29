@@ -15,6 +15,13 @@ const app = {
     }
   },
 
+  mounted () {
+    if (!document.cookie.replace(`/(?:(?:^|.*;\s*)${this.cookieName}\s*\=\s*([^;]*).*$)|^.*$/`, "$1")) {
+      window.location.href = "/login.html";
+      return;
+    }
+  },
+
   methods: {
     getData () {
       this.API.get(`/admin/products?page=1`)
@@ -53,11 +60,6 @@ const app = {
     resetValue () {
       this.isClickSendBtn = 0;
       this.targetModal = null;
-    },
-
-    checkIfLogin () {
-      if (document.cookie.replace(`/(?:(?:^|.*;\s*)${this.cookieName}\s*\=\s*([^;]*).*$)|^.*$/`, "$1")) return 1;
-      else return;
     },
 
     addProduct () {
@@ -138,10 +140,6 @@ const app = {
   },
 
   created () {
-    if (!this.checkIfLogin()) {
-      window.location.href = "/login.html";
-      return;
-    }
     this.getData();
   }
 }

@@ -10,6 +10,13 @@ const app = {
     }
   },
 
+  mounted () {
+    if (document.cookie.replace(`/(?:(?:^|.*;\s*)${this.cookieName}\s*\=\s*([^;]*).*$)|^.*$/`, "$1")) {
+      window.location.href = "/";
+      return;
+    }
+  },
+
   methods: {
     login () {
       this.API.post('/admin/signin', {
@@ -31,18 +38,6 @@ const app = {
           window.location.href = "/";
         })
         .catch(err => console.dir(err))
-    },
-
-    checkIfLogin () {
-      if (document.cookie.replace(`/(?:(?:^|.*;\s*)${this.cookieName}\s*\=\s*([^;]*).*$)|^.*$/`, "$1")) return 1;
-      else return;
-    }
-  },
-
-  created () {
-    if (this.checkIfLogin()) {
-      window.location.href = "/";
-      return;
     }
   }
 }
