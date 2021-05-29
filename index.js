@@ -55,13 +55,13 @@ const app = {
       if (action === 'add' || action === 'edit') modalName = 'productModal';
       else if (action === 'delete') modalName = 'delProductModal';
 
-      if (action === 'edit' && id) {
+      if ((action === 'edit' || action === 'delete') && id) {
         this.tempProduct = { ...this.products.find(product => product.id === id) };
-        this.tempProduct.num = 1; // FIXME: html 裡面沒數量，先填 1
+        this.tempProduct.id = id;
       }
 
-      if (action === 'edit' || action === 'delete') this.tempProduct.id = id;
       if (this.tempProduct.imagesUrl === undefined) this.tempProduct.imagesUrl = [];
+      this.tempProduct.num = 1; // html 裡面沒數量，先填 1
 
       this.targetModal = new bootstrap.Modal(document.getElementById(modalName), null);
       this.targetModal.show();
