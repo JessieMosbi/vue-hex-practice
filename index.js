@@ -8,31 +8,10 @@ const app = {
       }),
       products: [],
       targetModal: null,
-      blankProduct: {
-        imageUrl: '', // 主圖網址
-        imagesUrl: [], // 圖片網址一~五
-        title: '',
-        category: '',
-        unit: '',
-        origin_price: '',
-        price: '',
-        description: '',
-        content: '',
-        is_enabled: 0
-      },
       tempProduct: {
-        imageUrl: '', // 主圖網址
-        imagesUrl: [], // 圖片網址一~五
-        title: '',
-        category: '',
-        unit: '',
-        origin_price: '',
-        price: '',
-        description: '',
-        content: '',
-        is_enabled: 0
+        imagesUrl: []
       },
-      isClickSendBtn: 0
+      isClickSendBtn: 0 // for 空值提示
     }
   },
 
@@ -51,17 +30,21 @@ const app = {
     },
 
     openModal (action, id = null) {
+      // tempProduct 設定，imagesUrl 預設先給 blank array，這樣前台 add picture 可以直接 push
+      if (action === 'add') {
+        this.tempProduct = { imagesUrl: [] };
+      }
+      else if ((action === 'edit' || action === 'delete') && id) {
+        this.tempProduct = { ...this.products.find(product => product.id === id) };
+        this.tempProduct.id = id;
+        if (this.tempProduct.imagesUrl === undefined) this.tempProduct.imagesUrl = [];
+      }
+      this.tempProduct.num = 1; // html 裡面沒數量，先填 1
+
+      // open target modal
       let modalName;
       if (action === 'add' || action === 'edit') modalName = 'productModal';
       else if (action === 'delete') modalName = 'delProductModal';
-
-      if ((action === 'edit' || action === 'delete') && id) {
-        this.tempProduct = { ...this.products.find(product => product.id === id) };
-        this.tempProduct.id = id;
-      }
-
-      if (this.tempProduct.imagesUrl === undefined) this.tempProduct.imagesUrl = [];
-      this.tempProduct.num = 1; // html 裡面沒數量，先填 1
 
       this.targetModal = new bootstrap.Modal(document.getElementById(modalName), null);
       this.targetModal.show();
@@ -69,7 +52,6 @@ const app = {
 
     resetValue () {
       this.isClickSendBtn = 0;
-      this.tempProduct = { ...this.blankProduct };
       this.targetModal = null;
     },
 
@@ -101,7 +83,7 @@ const app = {
           alert('新增成功！');
           this.targetModal.hide();
           this.getData();
-          this.resetValue();
+          // this.resetValue();
         })
         .catch(err => console.dir(err))
     },
@@ -124,7 +106,7 @@ const app = {
           alert('編輯成功！');
           this.targetModal.hide();
           this.getData();
-          this.resetValue();
+          // this.resetValue();
         })
         .catch(err => console.dir(err))
     },
@@ -140,7 +122,6 @@ const app = {
 
           this.targetModal.hide();
           this.getData();
-          this.resetValue();
         })
         .catch(err => console.dir(err))
     },
