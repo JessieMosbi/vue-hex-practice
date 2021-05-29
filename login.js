@@ -26,7 +26,6 @@ const app = {
           const expireTime = new Date(res.data.expired).toUTCString();
 
           document.cookie = `hexschoolvue=${token};expires=${expireTime}`;
-          this.API.defaults.headers.common['Authorization'] = token;
 
           alert('登入成功！');
           window.location.href = "/";
