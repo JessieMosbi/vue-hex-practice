@@ -138,7 +138,6 @@ const app = {
           }
           alert('成功刪除產品！');
 
-          this.products.splice(this.products.findIndex((product) => product.id === this.tempProduct.id), 1);
           this.targetModal.hide();
           this.getData();
           this.resetValue();
