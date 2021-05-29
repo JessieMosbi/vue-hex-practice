@@ -2,10 +2,7 @@ const app = {
   data () {
     return {
       cookieName: 'hexschoolvue',
-      API: axios.create({
-        baseURL: `https://vue3-course-api.hexschool.io/api/jessiemosbi`,
-        headers: { 'Authorization': document.cookie.replace(/(?:(?:^|.*;\s*)hexschoolvue\s*\=\s*([^;]*).*$)|^.*$/, "$1") }
-      }),
+      API: null,
       products: [],
       targetModal: null,
       tempProduct: {
@@ -16,10 +13,18 @@ const app = {
   },
 
   mounted () {
-    if (!document.cookie.replace(`/(?:(?:^|.*;\s*)${this.cookieName}\s*\=\s*([^;]*).*$)|^.*$/`, "$1")) {
+    const token = document.cookie.replace(`/(?:(?:^|.*;\s*)${this.cookieName}\s*\=\s*([^;]*).*$)|^.*$/`, "$1");
+    if (!token) {
       window.location.href = "/login.html";
       return;
     }
+
+    this.API = axios.create({
+      baseURL: `https://vue3-course-api.hexschool.io/api/jessiemosbi`,
+      headers: { 'Authorization': document.cookie.replace(/(?:(?:^|.*;\s*)hexschoolvue\s*\=\s*([^;]*).*$)|^.*$/, "$1") }
+    });
+
+    this.getData();
   },
 
   methods: {
@@ -137,10 +142,6 @@ const app = {
       if (index === 'main') this.tempProduct.imageUrl = '';
       else this.tempProduct.imagesUrl.splice(index, 1);
     }
-  },
-
-  created () {
-    this.getData();
   }
 }
 
