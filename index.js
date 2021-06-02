@@ -6,7 +6,6 @@ const app = Vue.createApp({
   data () {
     return {
       cookieName: 'hexschoolvue',
-      API: null,
       products: [],
       targetModal: null,
       tempProduct: {
@@ -31,12 +30,6 @@ const app = Vue.createApp({
 
     instance.defaults.headers.common['Authorization'] = document.cookie.replace(/(?:(?:^|.*;\s*)hexschoolvue\s*\=\s*([^;]*).*$)|^.*$/, "$1");
 
-    // FIXME: 所有功能都改成 instance 後，要刪掉
-    this.API = axios.create({
-      baseURL: `https://vue3-course-api.hexschool.io/api/jessiemosbi`,
-      headers: { 'Authorization': document.cookie.replace(/(?:(?:^|.*;\s*)hexschoolvue\s*\=\s*([^;]*).*$)|^.*$/, "$1") }
-    });
-
     this.getData();
   },
 
@@ -44,7 +37,7 @@ const app = Vue.createApp({
     getData (page = 1) {
       console.log(`page is ${page}`);
 
-      this.API.get(`/admin/products?page=${page}`)
+      instance.get(`/admin/products?page=${page}`)
         .then(res => {
           if (!res.data.success) {
             alert('獲取產品列表資料失敗！');
@@ -105,7 +98,7 @@ const app = Vue.createApp({
       //   return;
       // }
 
-      this.API.post(`/admin/product`, { data: this.tempProduct })
+      instance.post(`/admin/product`, { data: this.tempProduct })
         .then(res => {
           if (!res.data.success) {
             alert('新增失敗！');
@@ -128,7 +121,7 @@ const app = Vue.createApp({
         return;
       }
 
-      this.API.put(`/admin/product/${this.tempProduct.id}`, { data: this.tempProduct })
+      instance.put(`/admin/product/${this.tempProduct.id}`, { data: this.tempProduct })
         .then(res => {
           if (!res.data.success) {
             alert('編輯失敗！');
