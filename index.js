@@ -189,6 +189,9 @@ app.component('deleteModal', {
           }
           alert('成功刪除產品！');
 
+          // TODO: 除了 updateData，其餘應該都可移進入來
+          // 但因為自己在 deleteModal component new 出來的 modal 跟外層 targetModal 其實是不一樣的 Object（雖然都是指 delete Modal，但是不同 Object 不同 reference），不能真的操作到同一個 modal
+          // 加上 openModal 勢必得從 root component 呼叫，若再把 modal 用 props 傳進來會跟 root component 太耦合！失去元件邏輯拆分的意義！所以明天在最外層加上 modal 變數，讓 root component 跟 delete modal component 都可以操作到同一個 modal
           this.$emit('closeModal');
           this.$emit('updateData');
           this.$emit('resetValue');
