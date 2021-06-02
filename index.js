@@ -8,7 +8,8 @@ const app = Vue.createApp({
       tempProduct: {
         imagesUrl: []
       },
-      isClickSendBtn: 0 // for 空值提示
+      isClickSendBtn: 0, // for 空值提示
+      totalPages: 0
     }
   },
 
@@ -39,6 +40,7 @@ const app = Vue.createApp({
           console.log(res.data);
 
           this.products = res.data.products;
+          this.totalPages = res.data.pagination.total_pages;
         })
         .catch(err => console.dir(err))
     },
@@ -149,9 +151,11 @@ const app = Vue.createApp({
 });
 
 // 新增 pagination template
-// TODO: 從外面傳進來，看 page 總共有幾頁，用 for 顯示 <li>
-// TODO: click pagination (記得要 .prevent)，觸發到外層元件的 getData
+// 從外面傳進來，看 page 總共有幾頁，用 for 顯示 <li>
+// TODO: click pagination (記得要 .prevent or javascript:;)，觸發到外層元件的 getData
 // TODO: pagination 要特別加深 (active class) 目前所在的 page
+// TODO: 特別情況下，「上一頁/下一頁」不顯示：totalPages = 1 || nowPage = 1 不顯示上一頁，totalPages = 1 || nowPage = lastPage 不顯示下一頁
+// TODO: 套一下之前有寫過的 pagination 中間固定只顯示幾頁
 
 app.component('pagination', {
   data () {
@@ -159,6 +163,7 @@ app.component('pagination', {
 
     }
   },
+  props: ['totalPages'],
   template: `
     <nav aria-label="Page navigation example">
       <ul class="pagination">
@@ -167,9 +172,7 @@ app.component('pagination', {
             <span aria-hidden="true">&laquo;</span>
           </a>
         </li>
-        <li class="page-item"><a class="page-link" href="#">1</a></li>
-        <li class="page-item"><a class="page-link" href="#">2</a></li>
-        <li class="page-item"><a class="page-link" href="#">3</a></li>
+        <li class="page-item" v-for="number in totalPages"><a class="page-link" href="#">{{number}}</a></li>
         <li class="page-item">
           <a class="page-link" href="#" aria-label="Next">
             <span aria-hidden="true">&raquo;</span>
