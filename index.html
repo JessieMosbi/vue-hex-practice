@@ -64,8 +64,8 @@
           </tr>
         </tbody>
       </table>
-      <pagination :total-pages="totalPages" :current-page="currentPage" :has-pre-page="hasPrePage"
-        :has-next-page="hasNextPage" @change-page="getData"></pagination>
+      <pagination :total-pages="page.total" :current-page="page.current" :has-pre-page="page.hasPre"
+        :has-next-page="page.hasNext" @change-page="getData"></pagination>
     </div>
     <!-- Modal -->
     <div id="productModal" ref="productModal" class="modal fade" tabindex="-1" aria-labelledby="productModalLabel"
