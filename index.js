@@ -174,7 +174,7 @@ app.component('pagination', {
             <span aria-hidden="true">&laquo;</span>
           </a>
         </li>
-        <li class="page-item" v-for="number in totalPages">
+        <li class="page-item" v-for="number in totalPages" :key="number">
           <a class="page-link" href="javascript:;" @click="$emit('changePage', number)">{{number}}</a>
         </li>
         <li class="page-item">
