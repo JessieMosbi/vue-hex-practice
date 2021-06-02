@@ -90,7 +90,7 @@ const app = Vue.createApp({
           alert('新增成功！');
           this.targetModal.hide();
           this.getData();
-          // this.resetValue();
+          this.resetValue();
         })
         .catch(err => console.dir(err))
     },
@@ -113,7 +113,7 @@ const app = Vue.createApp({
           alert('編輯成功！');
           this.targetModal.hide();
           this.getData();
-          // this.resetValue();
+          this.resetValue();
         })
         .catch(err => console.dir(err))
     },
@@ -129,6 +129,7 @@ const app = Vue.createApp({
 
           this.targetModal.hide();
           this.getData();
+          this.resetValue();
         })
         .catch(err => console.dir(err))
     },
