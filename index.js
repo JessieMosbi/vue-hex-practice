@@ -188,6 +188,11 @@ app.component('pagination', {
   `
 });
 
+app.component('deleteModal', {
+  props: ['tempProduct'],
+  template: '#deleteModal'
+})
+
 app.mount('#app');
 
 // FIXME: modal 關掉要怎麼 reset value？

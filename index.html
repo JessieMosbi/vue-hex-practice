@@ -197,6 +197,12 @@
         </div>
       </div>
     </div>
+    <delete-modal :temp-product="tempProduct"></delete-modal>
+    <!-- Modal -->
+  </div>
+
+  <!-- x-template -->
+  <script type="text/x-template" id="deleteModal">
     <div id="delProductModal" ref="delProductModal" class="modal fade" tabindex="-1"
       aria-labelledby="delProductModalLabel" aria-hidden="true">
       <div class="modal-dialog">
@@ -222,8 +228,7 @@
         </div>
       </div>
     </div>
-    <!-- Modal -->
-  </div>
+  </script>
 
   <script src='https://cdnjs.cloudflare.com/ajax/libs/axios/0.9.1/axios.min.js'
     integrity='sha512-Xk3wWei2TGrsh9kDSBKUMIjw/86sLUvhtnv9f7fOuIwhhiUTKz8szkWkzHthrM5Bb3Bu9idSzkxOrkzhcneuiw=='
