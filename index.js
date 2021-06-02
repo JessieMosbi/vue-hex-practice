@@ -83,6 +83,10 @@ const app = Vue.createApp({
       this.targetModal.show();
     },
 
+    closeModal () {
+      this.targetModal.hide();
+    },
+
     resetValue () {
       this.isClickSendBtn = 0;
       this.targetModal = null;
@@ -139,22 +143,6 @@ const app = Vue.createApp({
         .catch(err => console.dir(err))
     },
 
-    deleteProduct () {
-      this.API.delete(`/admin/product/${this.tempProduct.id}`)
-        .then(res => {
-          if (!res.data.success) {
-            alert('刪除產品失敗！');
-            return;
-          }
-          alert('成功刪除產品！');
-
-          this.targetModal.hide();
-          this.getData();
-          this.resetValue();
-        })
-        .catch(err => console.dir(err))
-    },
-
     addPicture () {
       if (this.tempProduct.imagesUrl.length === 5) return;
       this.tempProduct.imagesUrl.push('');
@@ -197,7 +185,24 @@ app.component('pagination', {
 
 app.component('deleteModal', {
   props: ['tempProduct'],
-  template: '#deleteModal'
+  template: '#deleteModal',
+  methods: {
+    deleteProduct () {
+      instance.delete(`/admin/product/${this.tempProduct.id}`)
+        .then(res => {
+          if (!res.data.success) {
+            alert('刪除產品失敗！');
+            return;
+          }
+          alert('成功刪除產品！');
+
+          this.$emit('closeModal');
+          this.$emit('updateData');
+          this.$emit('resetValue');
+        })
+        .catch(err => console.dir(err))
+    },
+  }
 })
 
 app.mount('#app');

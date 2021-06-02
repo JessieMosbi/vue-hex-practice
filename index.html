@@ -197,7 +197,8 @@
         </div>
       </div>
     </div>
-    <delete-modal :temp-product="tempProduct"></delete-modal>
+    <delete-modal :temp-product="tempProduct" @close-modal="closeModal" @update-data="getData"
+      @reset-value="resetValue"></delete-modal>
     <!-- Modal -->
   </div>
 
@@ -218,7 +219,7 @@
             <strong class="text-danger">{{tempProduct.title}}</strong> 商品(刪除後將無法恢復)。
           </div>
           <div class="modal-footer">
-            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal" @click="resetValue">
+            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal" @click="$emit('resetValue')">
               取消
             </button>
             <button type="button" class="btn btn-danger" @click="deleteProduct">
