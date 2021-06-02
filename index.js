@@ -1,4 +1,4 @@
-const app = {
+const app = Vue.createApp({
   data () {
     return {
       cookieName: 'hexschoolvue',
@@ -143,8 +143,8 @@ const app = {
       else this.tempProduct.imagesUrl.splice(index, 1);
     }
   }
-}
+});
 
-Vue.createApp(app).mount('#app');
+app.mount('#app');
 
 // FIXME: modal 關掉要怎麼 reset value？
