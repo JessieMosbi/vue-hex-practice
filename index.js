@@ -1,3 +1,7 @@
+const instance = axios.create({
+  baseURL: 'https://vue3-course-api.hexschool.io/api/jessiemosbi'
+});
+
 const app = Vue.createApp({
   data () {
     return {
@@ -25,6 +29,9 @@ const app = Vue.createApp({
       return;
     }
 
+    instance.defaults.headers.common['Authorization'] = document.cookie.replace(/(?:(?:^|.*;\s*)hexschoolvue\s*\=\s*([^;]*).*$)|^.*$/, "$1");
+
+    // FIXME: 所有功能都改成 instance 後，要刪掉
     this.API = axios.create({
       baseURL: `https://vue3-course-api.hexschool.io/api/jessiemosbi`,
       headers: { 'Authorization': document.cookie.replace(/(?:(?:^|.*;\s*)hexschoolvue\s*\=\s*([^;]*).*$)|^.*$/, "$1") }
