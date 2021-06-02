@@ -64,7 +64,7 @@
           </tr>
         </tbody>
       </table>
-      <pagination :total-pages="totalPages"></pagination>
+      <pagination :total-pages="totalPages" @change-page="getData"></pagination>
     </div>
     <!-- Modal -->
     <div id="productModal" ref="productModal" class="modal fade" tabindex="-1" aria-labelledby="productModalLabel"

@@ -29,8 +29,10 @@ const app = Vue.createApp({
   },
 
   methods: {
-    getData () {
-      this.API.get(`/admin/products?page=1`)
+    getData (page = 1) {
+      console.log(`page is ${page}`);
+
+      this.API.get(`/admin/products?page=${page}`)
         .then(res => {
           if (!res.data.success) {
             alert('獲取產品列表資料失敗！');
@@ -152,7 +154,7 @@ const app = Vue.createApp({
 
 // 新增 pagination template
 // 從外面傳進來，看 page 總共有幾頁，用 for 顯示 <li>
-// TODO: click pagination (記得要 .prevent or javascript:;)，觸發到外層元件的 getData
+// click pagination (記得要 .prevent or javascript:;)，觸發到外層元件的 getData
 // TODO: pagination 要特別加深 (active class) 目前所在的 page
 // TODO: 特別情況下，「上一頁/下一頁」不顯示：totalPages = 1 || nowPage = 1 不顯示上一頁，totalPages = 1 || nowPage = lastPage 不顯示下一頁
 // TODO: 套一下之前有寫過的 pagination 中間固定只顯示幾頁
@@ -172,7 +174,9 @@ app.component('pagination', {
             <span aria-hidden="true">&laquo;</span>
           </a>
         </li>
-        <li class="page-item" v-for="number in totalPages"><a class="page-link" href="#">{{number}}</a></li>
+        <li class="page-item" v-for="number in totalPages">
+          <a class="page-link" href="javascript:;" @click="$emit('changePage', number)">{{number}}</a>
+        </li>
         <li class="page-item">
           <a class="page-link" href="#" aria-label="Next">
             <span aria-hidden="true">&raquo;</span>
