@@ -160,14 +160,6 @@ const app = Vue.createApp({
   }
 });
 
-// 新增 pagination template
-// 從外面傳進來，看 page 總共有幾頁，用 for 顯示 <li>
-// click pagination (記得要 .prevent or javascript:;)，觸發到外層元件的 getData
-// pagination 要特別加深 (active class) 目前所在的 page >> 後端有丟 pagination.current_page（用 props 傳進來 pagination component）
-// 特別情況下，「上一頁/下一頁」不顯示：totalPages = 1 || nowPage = 1 不顯示上一頁，totalPages = 1 || nowPage = lastPage 不顯示下一頁 >> 不用自己判斷，後端有丟 pagination.has_next, has_pre (through props)
-// TODO: props 接受外層整個 page 物件看看，這樣就不用寫四個變數
-// TODO: 有空再套一下之前有寫過的 pagination 中間固定只顯示幾頁（先把其他 modal 拆成 component 要緊！）
-
 app.component('pagination', {
   methods: {
     clickPage (page) {
