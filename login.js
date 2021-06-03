@@ -12,7 +12,7 @@ const app = {
 
   mounted () {
     if (document.cookie.replace(`/(?:(?:^|.*;\s*)${this.cookieName}\s*\=\s*([^;]*).*$)|^.*$/`, "$1")) {
-      window.location.href = "/";
+      window.location.href = "/manage.html";
       return;
     }
   },
@@ -35,7 +35,7 @@ const app = {
           document.cookie = `hexschoolvue=${token};expires=${expireTime}`;
 
           alert('登入成功！');
-          window.location.href = "/";
+          window.location.href = "/manage.html";
         })
         .catch(err => console.dir(err))
     }
