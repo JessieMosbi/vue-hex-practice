@@ -1,3 +1,5 @@
+import pagination from './component/pagination.js'
+
 const instance = axios.create({
   baseURL: 'https://vue3-course-api.hexschool.io/api/jessiemosbi'
 });
@@ -8,46 +10,44 @@ let productModal;
 const app = Vue.createApp({
   data () {
     return {
-      cookieName: 'hexschoolvue',
+      // cookieName: 'hexschoolvue',
       products: [],
-      tempProduct: {
-        imagesUrl: []
-      },
-      isClickSendBtn: 0, // for 空值提示
-      nowAction: '',
       page: {
         total: 0,
         current: 0,
         hasPre: false,
         hasNext: false
-      }
+      },
+      tempProduct: {
+        imagesUrl: []
+      },
+      nowAction: ''
     }
   },
 
   mounted () {
-    const token = document.cookie.replace(`/(?:(?:^|.*;\s*)${this.cookieName}\s*\=\s*([^;]*).*$)|^.*$/`, "$1");
+    const token = document.cookie.replace(/(?:(?:^|.*;\s*)hexschoolvue\s*\=\s*([^;]*).*$)|^.*$/, "$1");
     if (!token) {
       window.location.href = "/login.html";
       return;
     }
 
-    instance.defaults.headers.common['Authorization'] = document.cookie.replace(/(?:(?:^|.*;\s*)hexschoolvue\s*\=\s*([^;]*).*$)|^.*$/, "$1");
-
+    instance.defaults.headers.common['Authorization'] = token;
     this.getData();
+
+    // FIXME: ask question
+    // console.log(document.cookie.replace(/(?:(?:^|.*;\s*)hexschoolvue\s*\=\s*([^;]*).*$)|^.*$/, "$1"))
+    // console.log(document.cookie.replace(`/(?:(?:^|.*;\s*)${this.cookieName}\s*\=\s*([^;]*).*$)|^.*$/`, "$1"))
   },
 
   methods: {
     getData (page = 1) {
-      console.log(`page is ${page}`);
-
       instance.get(`/admin/products?page=${page}`)
         .then(res => {
           if (!res.data.success) {
             alert('獲取產品列表資料失敗！');
             return;
           }
-
-          console.log(res.data);
 
           this.products = res.data.products;
           this.page.total = res.data.pagination.total_pages;
@@ -59,7 +59,10 @@ const app = Vue.createApp({
     },
 
     openModal (action, id = null) {
-      // tempProduct 設定，imagesUrl 預設先給 blank array，這樣前台 add picture 可以直接 push
+      // 紀錄目前動作 (productModal 判斷 add/edit 會用到)
+      this.nowAction = action;
+
+      // tempProduct 設定: imagesUrl 預設先給 blank array，這樣前台 add picture 可以直接 push
       if (action === 'add') {
         this.tempProduct = { imagesUrl: [] };
       }
@@ -70,8 +73,6 @@ const app = Vue.createApp({
       }
       this.tempProduct.num = 1; // html 裡面沒數量，先填 1
 
-      this.nowAction = action; // 紀錄目前動作 (productModal 判斷 add/edit 會用到)
-
       // open target modal
       if (action === 'add' || action === 'edit') productModal.show();
       else if (action === 'delete') delProductModal.show();
@@ -79,7 +80,6 @@ const app = Vue.createApp({
   }
 });
 
-import pagination from './component/pagination.js'
 app.component('pagination', pagination);
 
 app.component('deleteModal', {
@@ -119,8 +119,6 @@ app.component('productModal', {
   template: '#productModal',
   methods: {
     editProduct () {
-      console.log(`now user action is ${this.action}`);
-
       this.isClickSendBtn = 1;
 
       if (!this.tempProduct.title || !this.tempProduct.category || !this.tempProduct.unit || !this.tempProduct.origin_price || !this.tempProduct.price) {
@@ -128,36 +126,34 @@ app.component('productModal', {
         return;
       }
 
+      let actionName = '';
+      let API_path = '';
+      let HTTP_method = '';
+      let data = { data: this.tempProduct };
       if (this.action === 'add') {
-        instance.post(`/admin/product`, { data: this.tempProduct })
-          .then(res => {
-            if (!res.data.success) {
-              alert('新增失敗！');
-              return;
-            }
-            alert('新增成功！');
-
-            productModal.hide();
-            this.$emit('updateData');
-            this.isClickSendBtn = 0;
-          })
-          .catch(err => console.dir(err))
+        actionName = '新增';
+        API_path = '/admin/product';
+        HTTP_method = 'post';
       }
       else if (this.action === 'edit') {
-        instance.put(`/admin/product/${this.tempProduct.id}`, { data: this.tempProduct })
-          .then(res => {
-            if (!res.data.success) {
-              alert('編輯失敗！');
-              return;
-            }
-            alert('編輯成功！');
-
-            productModal.hide();
-            this.$emit('updateData');
-            this.isClickSendBtn = 0;
-          })
-          .catch(err => console.dir(err))
+        actionName = '編輯';
+        API_path = `/admin/product/${this.tempProduct.id}`;
+        HTTP_method = 'put';
       }
+
+      instance[HTTP_method](API_path, data)
+        .then(res => {
+          if (!res.data.success) {
+            alert(`${actionName}失敗！`);
+            return;
+          }
+          alert(`${actionName}成功！`);
+
+          productModal.hide();
+          this.$emit('updateData');
+          this.isClickSendBtn = 0;
+        })
+        .catch(err => console.dir(err))
     },
 
     addPicture () {
