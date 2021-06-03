@@ -68,6 +68,40 @@
         :has-next-page="page.hasNext" @change-page="getData"></pagination>
     </div>
     <!-- Modal -->
+    <product-modal :temp-product="tempProduct" :action="nowAction" @update-data="getData"></product-modal>
+    <delete-modal :temp-product="tempProduct" @update-data="getData"></delete-modal>
+    <!-- Modal -->
+  </div>
+
+  <!-- x-template -->
+  <script type="text/x-template" id="deleteModal">
+    <div id="delProductModal" ref="delProductModal" class="modal fade" tabindex="-1"
+      aria-labelledby="delProductModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content border-0">
+          <div class="modal-header bg-danger text-white">
+            <h5 id="delProductModalLabel" class="modal-title">
+              <span>刪除產品</span>
+            </h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            是否刪除
+            <strong class="text-danger">{{tempProduct.title}}</strong> 商品(刪除後將無法恢復)。
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+              取消
+            </button>
+            <button type="button" class="btn btn-danger" @click="deleteProduct">
+              確認刪除
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </script>
+  <script type="text/x-template" id="productModal">
     <div id="productModal" ref="productModal" class="modal fade" tabindex="-1" aria-labelledby="productModalLabel"
       aria-hidden="true">
       <div class="modal-dialog modal-xl">
@@ -187,42 +221,11 @@
             </div>
           </div>
           <div class="modal-footer">
-            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal" @click="resetValue">
+            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal" @click="isClickSendBtn = 0">
               取消
             </button>
-            <button type="button" class="btn btn-primary" @click="(tempProduct.id) ? editProduct() : addProduct()">
+            <button type="button" class="btn btn-primary" @click="editProduct">
               確認
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-    <delete-modal :temp-product="tempProduct" @update-data="getData" @reset-value="resetValue"></delete-modal>
-    <!-- Modal -->
-  </div>
-
-  <!-- x-template -->
-  <script type="text/x-template" id="deleteModal">
-    <div id="delProductModal" ref="delProductModal" class="modal fade" tabindex="-1"
-      aria-labelledby="delProductModalLabel" aria-hidden="true">
-      <div class="modal-dialog">
-        <div class="modal-content border-0">
-          <div class="modal-header bg-danger text-white">
-            <h5 id="delProductModalLabel" class="modal-title">
-              <span>刪除產品</span>
-            </h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-          </div>
-          <div class="modal-body">
-            是否刪除
-            <strong class="text-danger">{{tempProduct.title}}</strong> 商品(刪除後將無法恢復)。
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal" @click="$emit('resetValue')">
-              取消
-            </button>
-            <button type="button" class="btn btn-danger" @click="deleteProduct">
-              確認刪除
             </button>
           </div>
         </div>

@@ -14,6 +14,7 @@ const app = Vue.createApp({
         imagesUrl: []
       },
       isClickSendBtn: 0, // for 空值提示
+      nowAction: '',
       page: {
         total: 0,
         current: 0,
@@ -33,8 +34,6 @@ const app = Vue.createApp({
     instance.defaults.headers.common['Authorization'] = document.cookie.replace(/(?:(?:^|.*;\s*)hexschoolvue\s*\=\s*([^;]*).*$)|^.*$/, "$1");
 
     this.getData();
-
-    productModal = new bootstrap.Modal(document.getElementById('productModal'), null);
   },
 
   methods: {
@@ -71,74 +70,11 @@ const app = Vue.createApp({
       }
       this.tempProduct.num = 1; // html 裡面沒數量，先填 1
 
+      this.nowAction = action; // 紀錄目前動作 (productModal 判斷 add/edit 會用到)
+
       // open target modal
       if (action === 'add' || action === 'edit') productModal.show();
       else if (action === 'delete') delProductModal.show();
-    },
-
-    resetValue () {
-      this.isClickSendBtn = 0;
-    },
-
-    addProduct () {
-      this.isClickSendBtn = 1;
-
-      if (!this.tempProduct.title || !this.tempProduct.category || !this.tempProduct.unit || !this.tempProduct.origin_price || !this.tempProduct.price) {
-        alert('請檢查必填欄位！');
-        return;
-      }
-
-      // if (this.tempProduct.imagesUrl.filter(image => !image).length > 0) {
-      //   alert('不需新增的圖片欄位請刪除');
-      //   return;
-      // }
-
-      instance.post(`/admin/product`, { data: this.tempProduct })
-        .then(res => {
-          if (!res.data.success) {
-            alert('新增失敗！');
-            return;
-          }
-
-          alert('新增成功！');
-          productModal.hide();
-          this.getData();
-          this.resetValue();
-        })
-        .catch(err => console.dir(err))
-    },
-
-    editProduct () {
-      this.isClickSendBtn = 1;
-
-      if (!this.tempProduct.title || !this.tempProduct.category || !this.tempProduct.unit || !this.tempProduct.origin_price || !this.tempProduct.price) {
-        alert('請檢查必填欄位！');
-        return;
-      }
-
-      instance.put(`/admin/product/${this.tempProduct.id}`, { data: this.tempProduct })
-        .then(res => {
-          if (!res.data.success) {
-            alert('編輯失敗！');
-            return;
-          }
-
-          alert('編輯成功！');
-          productModal.hide();
-          this.getData();
-          this.resetValue();
-        })
-        .catch(err => console.dir(err))
-    },
-
-    addPicture () {
-      if (this.tempProduct.imagesUrl.length === 5) return;
-      this.tempProduct.imagesUrl.push('');
-    },
-
-    deletePicture (index) {
-      if (index === 'main') this.tempProduct.imageUrl = '';
-      else this.tempProduct.imagesUrl.splice(index, 1);
     }
   }
 });
@@ -167,6 +103,73 @@ app.component('deleteModal', {
         })
         .catch(err => console.dir(err))
     },
+  }
+})
+
+app.component('productModal', {
+  data () {
+    return {
+      isClickSendBtn: 0
+    }
+  },
+  mounted () {
+    productModal = new bootstrap.Modal(document.getElementById('productModal'), null);
+  },
+  props: ['tempProduct', 'action'],
+  template: '#productModal',
+  methods: {
+    editProduct () {
+      console.log(`now user action is ${this.action}`);
+
+      this.isClickSendBtn = 1;
+
+      if (!this.tempProduct.title || !this.tempProduct.category || !this.tempProduct.unit || !this.tempProduct.origin_price || !this.tempProduct.price) {
+        alert('請檢查必填欄位！');
+        return;
+      }
+
+      if (this.action === 'add') {
+        instance.post(`/admin/product`, { data: this.tempProduct })
+          .then(res => {
+            if (!res.data.success) {
+              alert('新增失敗！');
+              return;
+            }
+            alert('新增成功！');
+
+            productModal.hide();
+            this.$emit('updateData');
+            this.isClickSendBtn = 0;
+          })
+          .catch(err => console.dir(err))
+      }
+      else if (this.action === 'edit') {
+        instance.put(`/admin/product/${this.tempProduct.id}`, { data: this.tempProduct })
+          .then(res => {
+            if (!res.data.success) {
+              alert('編輯失敗！');
+              return;
+            }
+            alert('編輯成功！');
+
+            productModal.hide();
+            this.$emit('updateData');
+            this.isClickSendBtn = 0;
+          })
+          .catch(err => console.dir(err))
+      }
+    },
+
+    addPicture () {
+      // 雖然 props 是 readonly，但因 Object by reference 特性，還是可以修改裡面的值
+      if (this.tempProduct.imagesUrl.length === 5) return;
+      this.tempProduct.imagesUrl.push('');
+    },
+
+    deletePicture (index) {
+      if (index === 'main') this.tempProduct.imageUrl = '';
+      else this.tempProduct.imagesUrl.splice(index, 1);
+    }
   }
 })
 
