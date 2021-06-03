@@ -79,7 +79,7 @@ const app = Vue.createApp({
   }
 });
 
-import pagination from './pagination-component.js'
+import pagination from './component/pagination.js'
 app.component('pagination', pagination);
 
 app.component('deleteModal', {
