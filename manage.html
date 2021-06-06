@@ -69,7 +69,7 @@
     </div>
     <!-- Modal -->
     <product-modal :temp-product="tempProduct" :action="nowAction" @update-data="getData"></product-modal>
-    <delete-modal :temp-product="tempProduct" @update-data="getData"></delete-modal>
+    <delete-modal ref="delProductModal" :temp-product="tempProduct" @update-data="getData"></delete-modal>
   </div>
 
   <!-- x-template -->
