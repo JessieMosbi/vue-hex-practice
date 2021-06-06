@@ -4,8 +4,6 @@ const instance = axios.create({
   baseURL: 'https://vue3-course-api.hexschool.io/api/jessiemosbi'
 });
 
-let productModal;
-
 const app = Vue.createApp({
   data () {
     return {
@@ -73,7 +71,7 @@ const app = Vue.createApp({
       this.tempProduct.num = 1; // html 裡面沒數量，先填 1
 
       // open target modal
-      if (action === 'add' || action === 'edit') productModal.show();
+      if (action === 'add' || action === 'edit') this.$refs.productModal.openModal();
       else if (action === 'delete') this.$refs.delProductModal.openModal();
     }
   }
@@ -117,15 +115,20 @@ app.component('deleteModal', {
 app.component('productModal', {
   data () {
     return {
-      isClickSendBtn: 0
+      isClickSendBtn: 0,
+      modal: null
     }
   },
   mounted () {
-    productModal = new bootstrap.Modal(document.getElementById('productModal'), null);
+    this.modal = new bootstrap.Modal(this.$refs.productModal, null);
   },
   props: ['tempProduct', 'action'],
   template: '#productModal',
   methods: {
+    openModal () {
+      this.modal.show();
+    },
+
     editProduct () {
       this.isClickSendBtn = 1;
 
@@ -157,7 +160,7 @@ app.component('productModal', {
           }
           alert(`${actionName}成功！`);
 
-          productModal.hide();
+          this.modal.hide();
           this.$emit('updateData');
           this.isClickSendBtn = 0;
         })

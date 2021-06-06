@@ -68,7 +68,8 @@
         :has-next-page="page.hasNext" @change-page="getData"></pagination>
     </div>
     <!-- Modal -->
-    <product-modal :temp-product="tempProduct" :action="nowAction" @update-data="getData"></product-modal>
+    <product-modal ref="productModal" :temp-product="tempProduct" :action="nowAction" @update-data="getData">
+    </product-modal>
     <delete-modal ref="delProductModal" :temp-product="tempProduct" @update-data="getData"></delete-modal>
   </div>
 
