@@ -19,43 +19,7 @@
     <div class="container">
       <div class="mt-4">
         <!-- 產品列表 -->
-        <table class="table align-middle">
-          <thead>
-            <tr>
-              <th>圖片</th>
-              <th>商品名稱</th>
-              <th>價格</th>
-              <th>功能</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td style="width: 200px">
-                <div style="height: 100px; background-size: cover; background-position: center"></div>
-              </td>
-              <td>
-                商品名稱
-              </td>
-              <td>
-                <div class="h5">321 元</div>
-                <del class="h6">原價 123 元</del>
-                <div class="h5">現在只要 100 元</div>
-              </td>
-              <td>
-                <div class="btn-group btn-group-sm">
-                  <button type="button" class="btn btn-outline-secondary">
-                    <i class="fas fa-pulse"></i>
-                    查看更多
-                  </button>
-                  <button type="button" class="btn btn-outline-danger">
-                    <i class="fas fa-pulse"></i>
-                    加到購物車
-                  </button>
-                </div>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+        <produce-list-table></produce-list-table>
         <!-- 購物車列表 -->
         <div class="text-end">
           <button class="btn btn-outline-danger" type="button">清空購物車</button>
@@ -185,9 +149,7 @@
     </div>
   </div>
 
-  <script src='https://cdnjs.cloudflare.com/ajax/libs/axios/0.9.1/axios.min.js'
-    integrity='sha512-Xk3wWei2TGrsh9kDSBKUMIjw/86sLUvhtnv9f7fOuIwhhiUTKz8szkWkzHthrM5Bb3Bu9idSzkxOrkzhcneuiw=='
-    crossorigin='anonymous'></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.1/dist/umd/popper.min.js"
     integrity="sha384-SR1sx49pcuLnqZUnnPwx6FCym0wLsk5JZuNx2bPPENzswTNFaQU1RDvt3wT4gWFG"
     crossorigin="anonymous"></script>
