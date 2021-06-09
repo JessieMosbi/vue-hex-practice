@@ -8,6 +8,9 @@ import 'https://unpkg.com/mitt/dist/mitt.umd.js';
 const emitter = mitt();
 
 const app = Vue.createApp({
+  // mounted () {
+  //   console.log(this.$refs) // 只有 cart-list-table (ref 不同層取不到的問題，這個是在 root component 底下才取得到)
+  // }
 });
 
 app.component('produceListTable', {
@@ -44,7 +47,7 @@ app.component('produceListTable', {
           </td>
           <td>
             <div class="btn-group btn-group-sm">
-              <button type="button" class="btn btn-outline-secondary" @click="openModal(product.id)">
+              <button type="button" class="btn btn-outline-secondary" @click="getProduct(product.id)">
                 <i class="fas fa-pulse"></i>
                 查看更多
               </button>
@@ -82,13 +85,26 @@ app.component('produceListTable', {
         .catch(err => console.dir(err))
     },
 
-    addToCart (productId) {
-      emitter.emit('addToCart', productId);
+    getProduct (productId) {
+      console.log(`getProduct(): ${productId}`);
+
+      instance.get(`/product/${productId}`)
+        .then(res => {
+          console.log(res.data)
+
+          if (!res.data.success) {
+            alert('獲取產品詳細資料失敗！');
+            return;
+          }
+
+          emitter.emit('openProductModal', res.data.product);
+        })
+        .catch(err => console.dir(err))
     },
 
-    // TODO:
-    openModal (productId) {
-      console.log(`openModal(): ${productId}`);
+    addToCart (productId) {
+      console.log(`addToCart(): ${productId}`)
+      emitter.emit('addToCart', { id: productId, qty: 1 });
     }
   },
 });
@@ -182,11 +198,11 @@ app.component('cartListTable', {
         .catch(err => console.dir(err))
     },
 
-    addToCart (productId) {
+    addToCart (product) {
       const data = {
         "data": {
-          "product_id": productId,
-          "qty": 1
+          "product_id": product.id,
+          "qty": +product.qty
         }
       }
 
@@ -199,6 +215,7 @@ app.component('cartListTable', {
           }
 
           this.getCarts();
+          emitter.emit('closeProductModal');
         })
         .catch(err => console.dir(err))
     },
@@ -293,6 +310,46 @@ app.component('orderInfo', {
           emitter.emit('updateCarts');
         })
         .catch(err => console.dir(err))
+    }
+  },
+});
+
+app.component('productModal', {
+  data () {
+    return {
+      modal: null,
+      product: {},
+      addToCartQty: 1
+    }
+  },
+  created () {
+    emitter.on('openProductModal', (data) => {
+      this.product = { ...data };
+      this.openModal();
+      console.log('here!')
+      console.log(this.product)
+      console.log(this.product.title)
+    });
+
+    emitter.on('closeProductModal', () => {
+      this.closeModal();
+    });
+  },
+  mounted () {
+    this.modal = new bootstrap.Modal(this.$refs.productModal, null);
+  },
+  template: '#product-modal',
+  methods: {
+    openModal () {
+      this.modal.show();
+    },
+
+    closeModal () {
+      this.modal.hide();
+    },
+
+    addToCart () {
+      emitter.emit('addToCart', { id: this.product.id, qty: this.addToCartQty });
     }
   },
 });
