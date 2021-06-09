@@ -1,6 +1,11 @@
+// axios
 const instance = axios.create({
   baseURL: 'https://vue3-course-api.hexschool.io/api/jessiemosbi'
 });
+
+// mitt
+import 'https://unpkg.com/mitt/dist/mitt.umd.js';
+const emitter = mitt();
 
 const app = Vue.createApp({
 });
@@ -77,9 +82,8 @@ app.component('produceListTable', {
         .catch(err => console.dir(err))
     },
 
-    // TODO:
     addToCart (productId) {
-      console.log(`addToCart(): ${productId}`);
+      emitter.emit('addToCart', productId);
     },
 
     // TODO:
@@ -87,7 +91,145 @@ app.component('produceListTable', {
       console.log(`openModal(): ${productId}`);
     }
   },
-})
+});
+
+app.component('cartListTable', {
+  data () {
+    return {
+      carts: [],
+      total: 0,
+      final_total: 0
+    }
+  },
+  created () {
+    emitter.on('addToCart', (data) => this.addToCart(data));
+  },
+  mounted () {
+    this.getCarts();
+  },
+  template: `
+    <div class="text-end">
+      <button class="btn btn-outline-danger" type="button" @click="deleteAllCarts">清空購物車</button>
+    </div>
+    <table class="table align-middle">
+      <thead>
+        <tr>
+          <th></th>
+          <th>品名</th>
+          <th style="width: 150px">數量/單位</th>
+          <th>單價</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="cart in carts" :key="cart.id">
+          <td>
+            <button type="button" class="btn btn-outline-danger btn-sm" @click="deleteCart(cart.id)">
+              <i class="fas fa-pulse"></i>
+              x
+            </button>
+          </td>
+          <td>
+            {{cart.product.title}}
+            <div class="text-success" v-if="cart.coupon">
+              已套用優惠券
+            </div>
+          </td>
+          <td>
+            <div class="input-group input-group-sm">
+              {{cart.qty}} / 個
+            </div>
+          </td>
+          <td class="text-end">
+            {{cart.product.origin_price}}
+            <small class="text-success">折扣價：</small>
+            {{cart.product.price}}
+          </td>
+        </tr>
+      </tbody>
+      <tfoot>
+        <tr>
+          <td colspan="3" class="text-end">總計</td>
+          <td class="text-end">{{total}}</td>
+        </tr>
+        <tr>
+          <td colspan="3" class="text-end text-success">折扣價</td>
+          <td class="text-end text-success">{{final_total}}</td>
+        </tr>
+      </tfoot>
+    </table>
+  `,
+  methods: {
+    getCarts () {
+      instance.get(`/cart`)
+        .then(res => {
+          console.log(res.data.data);
+
+          if (!res.data.success) {
+            alert('獲取購物車列表資料失敗！');
+            return;
+          }
+
+          this.carts = res.data.data.carts;
+          this.total = res.data.data.total;
+          this.final_total = res.data.data.final_total;
+        })
+        .catch(err => console.dir(err))
+    },
+
+    addToCart (productId) {
+      const data = {
+        "data": {
+          "product_id": productId,
+          "qty": 1
+        }
+      }
+
+      instance.post(`/cart`, data)
+        .then(res => {
+
+          if (!res.data.success) {
+            alert('新增至購物車失敗！');
+            return;
+          }
+
+          this.getCarts();
+        })
+        .catch(err => console.dir(err))
+    },
+
+    deleteCart (cardId) {
+      console.log(`deleteCart() : ${cardId}`);
+
+      instance.delete(`/cart/${cardId}`)
+        .then(res => {
+
+          if (!res.data.success) {
+            alert('刪除購物車資料失敗！');
+            return;
+          }
+
+          this.getCarts();
+        })
+        .catch(err => console.dir(err))
+    },
+
+    deleteAllCarts () {
+      console.log(`deleteAllCarts()`);
+
+      instance.delete(`/carts`)
+        .then(res => {
+
+          if (!res.data.success) {
+            alert('清除購物車資料失敗！');
+            return;
+          }
+
+          this.getCarts();
+        })
+        .catch(err => console.dir(err))
+    }
+  },
+});
 
 // Enroll vee-validate component
 app.component('VForm', VeeValidate.Form);

@@ -21,54 +21,7 @@
         <!-- 產品列表 -->
         <produce-list-table></produce-list-table>
         <!-- 購物車列表 -->
-        <div class="text-end">
-          <button class="btn btn-outline-danger" type="button">清空購物車</button>
-        </div>
-        <table class="table align-middle">
-          <thead>
-            <tr>
-              <th></th>
-              <th>品名</th>
-              <th style="width: 150px">數量/單位</th>
-              <th>單價</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>
-                <button type="button" class="btn btn-outline-danger btn-sm">
-                  <i class="fas fa-pulse"></i>
-                  x
-                </button>
-              </td>
-              <td>
-                aaa
-                <div class="text-success">
-                  已套用優惠券
-                </div>
-              </td>
-              <td>
-                <div class="input-group input-group-sm">
-                  3 / 個
-                </div>
-              </td>
-              <td class="text-end">
-                <small class="text-success">折扣價：</small>
-                100
-              </td>
-            </tr>
-          </tbody>
-          <tfoot>
-            <tr>
-              <td colspan="3" class="text-end">總計</td>
-              <td class="text-end">999</td>
-            </tr>
-            <tr>
-              <td colspan="3" class="text-end text-success">折扣價</td>
-              <td class="text-end text-success">100</td>
-            </tr>
-          </tfoot>
-        </table>
+        <cart-list-table></cart-list-table>
       </div>
       <!-- 訂購資訊 -->
       <div class="my-5 row justify-content-center">
@@ -162,7 +115,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@vee-validate/i18n@4.1.17/dist/vee-validate-i18n.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@vee-validate/rules@4.1.17/dist/vee-validate-rules.min.js"></script>
 
-  <script src="index.js"></script>
+  <script type="module" src="index.js"></script>
 </body>
 
 </html>
