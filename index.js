@@ -103,9 +103,15 @@ app.component('cartListTable', {
   },
   created () {
     emitter.on('addToCart', (data) => this.addToCart(data));
+    emitter.on('updateCarts', () => this.getCarts());
   },
   mounted () {
     this.getCarts();
+  },
+  watch: {
+    carts () {
+      emitter.emit('updateCartAmount', this.carts.length);
+    }
   },
   template: `
     <div class="text-end">
@@ -225,6 +231,66 @@ app.component('cartListTable', {
           }
 
           this.getCarts();
+        })
+        .catch(err => console.dir(err))
+    }
+  },
+});
+
+app.component('orderInfo', {
+  data () {
+    return {
+      user: {
+        email: '',
+        name: '',
+        tel: '',
+        address: ''
+      },
+      message: '',
+      cartsAmount: 0
+    }
+  },
+  created () {
+    emitter.on('updateCartAmount', (data) => this.cartsAmount = data);
+  },
+  template: '#user-info',
+  methods: {
+    sendForm () {
+      // check 購物車有無商品 // FIXME: 抓不到 ref 耶！？
+      // console.log(this.$refs['cart-list-table'].carts.length);
+      // if (this.$refs['cart-list-table'].carts.length === 0) {
+      //   alert('購物車內無商品可結帳！');
+      //   return;
+      // }
+      // 所以我在 cartListTable component 加了一個 watch，裡面放 mitt，發更新購物車數量的事件。並在 orderInfo 加上監聽
+      if (this.cartsAmount === 0) {
+        alert('購物車內無商品可結帳！');
+        return;
+      }
+
+      const data = {
+        "data": {
+          "user": this.user,
+          "message": this.message
+        }
+      }
+
+      instance.post(`/order`, data)
+        .then(res => {
+
+          console.log(res.data)
+
+          if (!res.data.success) {
+            alert('新增訂單失敗！');
+            return;
+          }
+
+          // Object.keys(this.user).forEach(item => this.user[item] = '');
+          // 清掉最外層 component 的 errors data (直接 console.log(this.$refs['user-form']); 才找到)
+          this.$refs['user-form'].resetForm();
+          this.message = ''; // vee-validate 沒辦法用 textarea
+
+          emitter.emit('updateCarts');
         })
         .catch(err => console.dir(err))
     }
