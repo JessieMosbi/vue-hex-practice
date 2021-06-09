@@ -128,9 +128,10 @@ app.component('produceListTable', {
   },
 });
 
-app.component('cartListTable', {
+app.component('cart', {
   data () {
     return {
+      isMounted: false,
       carts: [],
       total: 0,
       final_total: 0
@@ -141,6 +142,10 @@ app.component('cartListTable', {
     emitter.on('updateCarts', () => this.getCarts());
   },
   mounted () {
+    // This can be easily fixed by only rendering the teleport portion only after the component is mounted.
+    // fix this error: Failed to locate Teleport target with selector  Note the target element must exist before the component is mounted
+    // 但是練習的範例就不會欸，為什麼？是因為作業的 component code 比較多，所以不一定趕在 target Dom 之前 mounted 完嗎？
+    this.isMounted = true;
     this.getCarts();
   },
   watch: {
@@ -149,55 +154,59 @@ app.component('cartListTable', {
     }
   },
   template: `
-    <div class="text-end">
-      <button class="btn btn-outline-danger" type="button" @click="deleteAllCarts">清空購物車</button>
-    </div>
-    <table class="table align-middle">
-      <thead>
-        <tr>
-          <th></th>
-          <th>品名</th>
-          <th style="width: 150px">數量/單位</th>
-          <th>單價</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="cart in carts" :key="cart.id">
-          <td>
-            <button type="button" class="btn btn-outline-danger btn-sm" @click="deleteCart(cart.id)">
-              <i class="fas fa-pulse"></i>
-              x
-            </button>
-          </td>
-          <td>
-            {{cart.product.title}}
-            <div class="text-success" v-if="cart.coupon">
-              已套用優惠券
-            </div>
-          </td>
-          <td>
-            <div class="input-group input-group-sm">
-              {{cart.qty}} / 個
-            </div>
-          </td>
-          <td class="text-end">
-            {{cart.product.origin_price}}
-            <small class="text-success">折扣價：</small>
-            {{cart.product.price}}
-          </td>
-        </tr>
-      </tbody>
-      <tfoot>
-        <tr>
-          <td colspan="3" class="text-end">總計</td>
-          <td class="text-end">{{total}}</td>
-        </tr>
-        <tr>
-          <td colspan="3" class="text-end text-success">折扣價</td>
-          <td class="text-end text-success">{{final_total}}</td>
-        </tr>
-      </tfoot>
-    </table>
+    <teleport to="#cart-delete-div" v-if="isMounted">
+      <div class="text-end">
+        <button class="btn btn-outline-danger" type="button" @click="deleteAllCarts">清空購物車</button>
+      </div>
+    </teleport>
+    <teleport to="#cart-list-table" v-if="isMounted">
+      <table class="table align-middle">
+        <thead>
+          <tr>
+            <th></th>
+            <th>品名</th>
+            <th style="width: 150px">數量/單位</th>
+            <th>單價</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="cart in carts" :key="cart.id">
+            <td>
+              <button type="button" class="btn btn-outline-danger btn-sm" @click="deleteCart(cart.id)">
+                <i class="fas fa-pulse"></i>
+                x
+              </button>
+            </td>
+            <td>
+              {{cart.product.title}}
+              <div class="text-success" v-if="cart.coupon">
+                已套用優惠券
+              </div>
+            </td>
+            <td>
+              <div class="input-group input-group-sm">
+                {{cart.qty}} / 個
+              </div>
+            </td>
+            <td class="text-end">
+              {{cart.product.origin_price}}
+              <small class="text-success">折扣價：</small>
+              {{cart.product.price}}
+            </td>
+          </tr>
+        </tbody>
+        <tfoot>
+          <tr>
+            <td colspan="3" class="text-end">總計</td>
+            <td class="text-end">{{total}}</td>
+          </tr>
+          <tr>
+            <td colspan="3" class="text-end text-success">折扣價</td>
+            <td class="text-end text-success">{{final_total}}</td>
+          </tr>
+        </tfoot>
+      </table>
+    </teleport>
   `,
   methods: {
     getCarts () {
@@ -298,7 +307,7 @@ app.component('orderInfo', {
       //   alert('購物車內無商品可結帳！');
       //   return;
       // }
-      // 所以我在 cartListTable component 加了一個 watch，裡面放 mitt，發更新購物車數量的事件。並在 orderInfo 加上監聽
+      // 所以我在 cart component 加了一個 watch，裡面放 mitt，發更新購物車數量的事件。並在 orderInfo 加上監聽
       if (this.cartsAmount === 0) {
         alert('購物車內無商品可結帳！');
         return;
