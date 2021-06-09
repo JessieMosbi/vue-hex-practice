@@ -16,9 +16,10 @@ const app = Vue.createApp({
   // }
 });
 
-app.component('produceListTable', {
+app.component('product', {
   data () {
     return {
+      isMounted: false,
       products: [],
       page: {
         total: 0,
@@ -32,49 +33,54 @@ app.component('produceListTable', {
     pagination
   },
   mounted () {
+    this.isMounted = true;
     this.getProducts();
   },
   template: `
-    <table class="table align-middle">
-      <thead>
-        <tr>
-          <th>圖片</th>
-          <th>商品名稱</th>
-          <th>價格</th>
-          <th>功能</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="(product, index) in products" :key="index">
-          <td style="width: 200px">
-            <div :style="getImageStyle(product.imageUrl)" v-if="product.imagesUrl"></div>
-          </td>
-          <td>
-            {{product.title}}
-          </td>
-          <td>
-            <div class="h5">{{product.origin_price}} 元</div>
-            <del class="h6">原價 {{product.origin_price}} 元</del>
-            <div class="h5">現在只要 {{product.price}} 元</div>
-          </td>
-          <td>
-            <div class="btn-group btn-group-sm">
-              <button type="button" class="btn btn-outline-secondary" @click="getProduct(product.id)">
-                <i class="fas fa-pulse"></i>
-                查看更多
-              </button>
-              <button type="button" class="btn btn-outline-danger" @click="addToCart(product.id)">
-                <i class="fas fa-pulse"></i>
-                加到購物車
-              </button>
-            </div>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+    <teleport to="#product-list-table" v-if="isMounted">
+      <table class="table align-middle">
+        <thead>
+          <tr>
+            <th>圖片</th>
+            <th>商品名稱</th>
+            <th>價格</th>
+            <th>功能</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="(product, index) in products" :key="index">
+            <td style="width: 200px">
+              <div :style="getImageStyle(product.imageUrl)" v-if="product.imagesUrl"></div>
+            </td>
+            <td>
+              {{product.title}}
+            </td>
+            <td>
+              <div class="h5">{{product.origin_price}} 元</div>
+              <del class="h6">原價 {{product.origin_price}} 元</del>
+              <div class="h5">現在只要 {{product.price}} 元</div>
+            </td>
+            <td>
+              <div class="btn-group btn-group-sm">
+                <button type="button" class="btn btn-outline-secondary" @click="getProduct(product.id)">
+                  <i class="fas fa-pulse"></i>
+                  查看更多
+                </button>
+                <button type="button" class="btn btn-outline-danger" @click="addToCart(product.id)">
+                  <i class="fas fa-pulse"></i>
+                  加到購物車
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </teleport>
 
-    <pagination :total-pages="page.total" :current-page="page.current" :has-pre-page="page.hasPre"
+    <teleport to="#product-list-pagination" v-if="isMounted">
+      <pagination :total-pages="page.total" :current-page="page.current" :has-pre-page="page.hasPre"
         :has-next-page="page.hasNext" @change-page="getProducts"></pagination>
+    </teleport>
   `,
   methods: {
     // FIXME: 應該有更好的方法~
