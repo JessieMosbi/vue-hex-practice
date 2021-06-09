@@ -7,6 +7,9 @@ const instance = axios.create({
 import 'https://unpkg.com/mitt/dist/mitt.umd.js';
 const emitter = mitt();
 
+// other
+import pagination from './component/pagination.js'
+
 const app = Vue.createApp({
   // mounted () {
   //   console.log(this.$refs) // 只有 cart-list-table (ref 不同層取不到的問題，這個是在 root component 底下才取得到)
@@ -16,8 +19,17 @@ const app = Vue.createApp({
 app.component('produceListTable', {
   data () {
     return {
-      products: []
+      products: [],
+      page: {
+        total: 0,
+        current: 0,
+        hasPre: false,
+        hasNext: false
+      }
     }
+  },
+  components: {
+    pagination
   },
   mounted () {
     this.getProducts();
@@ -60,6 +72,9 @@ app.component('produceListTable', {
         </tr>
       </tbody>
     </table>
+
+    <pagination :total-pages="page.total" :current-page="page.current" :has-pre-page="page.hasPre"
+        :has-next-page="page.hasNext" @change-page="getProducts"></pagination>
   `,
   methods: {
     // FIXME: 應該有更好的方法~
@@ -72,8 +87,8 @@ app.component('produceListTable', {
       }
     },
 
-    getProducts () {
-      instance.get(`/products?page=1`)
+    getProducts (page = 1) {
+      instance.get(`/products?page=${page}`)
         .then(res => {
           if (!res.data.success) {
             alert('獲取產品列表資料失敗！');
@@ -81,6 +96,10 @@ app.component('produceListTable', {
           }
 
           this.products = res.data.products;
+          this.page.total = res.data.pagination.total_pages;
+          this.page.current = res.data.pagination.current_page;
+          this.page.hasPre = res.data.pagination.has_pre;
+          this.page.hasNext = res.data.pagination.has_next;
         })
         .catch(err => console.dir(err))
     },
