@@ -288,9 +288,10 @@ app.component('cart', {
   },
 });
 
-app.component('orderInfo', {
+app.component('order', {
   data () {
     return {
+      isMounted: false,
       user: {
         email: '',
         name: '',
@@ -304,7 +305,10 @@ app.component('orderInfo', {
   created () {
     emitter.on('updateCartAmount', (data) => this.cartsAmount = data);
   },
-  template: '#user-info',
+  mounted () {
+    this.isMounted = true;
+  },
+  template: '#order-info',
   methods: {
     sendForm () {
       // check 購物車有無商品 // FIXME: 抓不到 ref 耶！？
