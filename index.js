@@ -12,7 +12,7 @@ import pagination from './component/pagination.js'
 
 const app = Vue.createApp({
   // mounted () {
-  //   console.log(this.$refs) // 只有 cart-list-table (ref 不同層取不到的問題，這個是在 root component 底下才取得到)
+  //   console.log(this.$refs) // 只有 cart-list-table (這裡的 ref 只能取到在 root component 直接下層的 component)
   // }
 });
 
@@ -37,58 +37,9 @@ app.component('product', {
     this.isMounted = true;
     this.getProducts();
   },
-  template: `
-    <teleport to="#product-list-table" v-if="isMounted">
-      <table class="table align-middle">
-        <thead>
-          <tr>
-            <th>圖片</th>
-            <th>商品名稱</th>
-            <th>價格</th>
-            <th>功能</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="(product, index) in products" :key="index">
-            <td style="width: 200px">
-              <div :style="getImageStyle(product.imageUrl)" v-if="product.imagesUrl"></div>
-            </td>
-            <td>
-              {{product.title}}
-            </td>
-            <td>
-              <div class="h5">{{product.origin_price}} 元</div>
-              <del class="h6">原價 {{product.origin_price}} 元</del>
-              <div class="h5">現在只要 {{product.price}} 元</div>
-            </td>
-            <td>
-              <div class="btn-group btn-group-sm">
-                <button type="button" class="btn btn-outline-secondary" @click="getProduct(product.id)">
-                  <i class="fas fa-pulse"></i>
-                  查看更多
-                </button>
-                <button type="button" class="btn btn-outline-danger" @click="addToCart(product.id)">
-                  <i class="fas fa-pulse"></i>
-                  加到購物車
-                </button>
-              </div>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </teleport>
-
-    <teleport to="#product-list-pagination" v-if="isMounted">
-      <pagination :total-pages="page.total" :current-page="page.current" :has-pre-page="page.hasPre"
-        :has-next-page="page.hasNext" @change-page="getProducts"></pagination>
-    </teleport>
-
-    <teleport to="#product-list-loading" v-if="isMounted">
-      <loading :active="isLoading" :is-full-page="false"></loading>
-    </teleport>
-  `,
+  template: '#product-list',
   methods: {
-    // FIXME: 應該有更好的方法~
+    // FIXME: 應該有更好的方法，但 :style 整個卡住 url 寫不進去，只好用這樣呼叫 method 的方式處理
     getImageStyle (url) {
       return {
         height: '100px',
@@ -168,65 +119,7 @@ app.component('cart', {
       emitter.emit('updateCartAmount', this.carts.length);
     }
   },
-  template: `
-    <teleport to="#cart-delete-div" v-if="isMounted">
-      <div class="text-end">
-        <button class="btn btn-outline-danger" type="button" @click="deleteAllCarts">清空購物車</button>
-      </div>
-    </teleport>
-    <teleport to="#cart-list-table" v-if="isMounted">
-      <table class="table align-middle">
-        <thead>
-          <tr>
-            <th></th>
-            <th>品名</th>
-            <th style="width: 150px">數量/單位</th>
-            <th>單價</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="cart in carts" :key="cart.id">
-            <td>
-              <button type="button" class="btn btn-outline-danger btn-sm" @click="deleteCart(cart.id)">
-                <i class="fas fa-pulse"></i>
-                x
-              </button>
-            </td>
-            <td>
-              {{cart.product.title}}
-              <div class="text-success" v-if="cart.coupon">
-                已套用優惠券
-              </div>
-            </td>
-            <td>
-              <div class="input-group input-group-sm">
-                {{cart.qty}} / 個
-              </div>
-            </td>
-            <td class="text-end">
-              {{cart.product.origin_price}}
-              <small class="text-success">折扣價：</small>
-              {{cart.product.price}}
-            </td>
-          </tr>
-        </tbody>
-        <tfoot>
-          <tr>
-            <td colspan="3" class="text-end">總計</td>
-            <td class="text-end">{{total}}</td>
-          </tr>
-          <tr>
-            <td colspan="3" class="text-end text-success">折扣價</td>
-            <td class="text-end text-success">{{final_total}}</td>
-          </tr>
-        </tfoot>
-      </table>
-    </teleport>
-
-    <teleport to="#cart-list-loading" v-if="isMounted" :is-full-page="false">
-      <loading :active="isLoading" :is-full-page="false"></loading>
-    </teleport>
-  `,
+  template: '#cart-list',
   methods: {
     getCarts () {
       this.showLoading(true);
@@ -337,13 +230,15 @@ app.component('order', {
     sendForm () {
       this.showLoading(true);
 
-      // check 購物車有無商品 // FIXME: 抓不到 ref 耶！？
+      // === check 購物車有無商品
+      // FIXME: 抓不到 ref cart-list-table，this.$refs 只抓的到在直接下層的 ref（像 cart-list-table 屬於 root component，那只有在 root component 才能取得這 ref）
       // console.log(this.$refs['cart-list-table'].carts.length);
       // if (this.$refs['cart-list-table'].carts.length === 0) {
       //   alert('購物車內無商品可結帳！');
       //   return;
       // }
-      // 所以我在 cart component 加了一個 watch，裡面放 mitt，發更新購物車數量的事件。並在 orderInfo 加上監聽
+
+      // 因為無法用 ref，所以我在 cart component 加了一個 watch，裡面放 mitt，發更新購物車數量的事件。並在 orderInfo 加上監聽
       if (this.cartsAmount === 0) {
         alert('購物車內無商品可結帳！');
         this.showLoading(false);
@@ -365,6 +260,7 @@ app.component('order', {
             this.showLoading(false);
             return;
           }
+          alert('成功送出訂單！');
 
           // Object.keys(this.user).forEach(item => this.user[item] = '');
           // 清掉最外層 component 的 errors data (直接 console.log(this.$refs['user-form']); 才找到)

@@ -44,6 +44,117 @@
     <order></order>
   </div>
 
+  <!-- x-templates -->
+  <script type="text/x-template" id="product-list">
+    <teleport to="#product-list-table" v-if="isMounted">
+      <table class="table align-middle">
+        <thead>
+          <tr>
+            <th>圖片</th>
+            <th>商品名稱</th>
+            <th>價格</th>
+            <th>功能</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="(product, index) in products" :key="index">
+            <td style="width: 200px">
+              <div :style="getImageStyle(product.imageUrl)" v-if="product.imagesUrl"></div>
+            </td>
+            <td>
+              {{product.title}}
+            </td>
+            <td>
+              <div class="h5">{{product.origin_price}} 元</div>
+              <del class="h6">原價 {{product.origin_price}} 元</del>
+              <div class="h5">現在只要 {{product.price}} 元</div>
+            </td>
+            <td>
+              <div class="btn-group btn-group-sm">
+                <button type="button" class="btn btn-outline-secondary" @click="getProduct(product.id)">
+                  <i class="fas fa-pulse"></i>
+                  查看更多
+                </button>
+                <button type="button" class="btn btn-outline-danger" @click="addToCart(product.id)">
+                  <i class="fas fa-pulse"></i>
+                  加到購物車
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </teleport>
+
+    <teleport to="#product-list-pagination" v-if="isMounted">
+      <pagination :total-pages="page.total" :current-page="page.current" :has-pre-page="page.hasPre"
+        :has-next-page="page.hasNext" @change-page="getProducts"></pagination>
+    </teleport>
+
+    <teleport to="#product-list-loading" v-if="isMounted">
+      <loading :active="isLoading" :is-full-page="false"></loading>
+    </teleport>
+  </script>
+
+  <script type="text/x-template" id="cart-list">
+    <teleport to="#cart-delete-div" v-if="isMounted">
+      <div class="text-end">
+        <button class="btn btn-outline-danger" type="button" @click="deleteAllCarts">清空購物車</button>
+      </div>
+    </teleport>
+    <teleport to="#cart-list-table" v-if="isMounted">
+      <table class="table align-middle">
+        <thead>
+          <tr>
+            <th></th>
+            <th>品名</th>
+            <th style="width: 150px">數量/單位</th>
+            <th>單價</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="cart in carts" :key="cart.id">
+            <td>
+              <button type="button" class="btn btn-outline-danger btn-sm" @click="deleteCart(cart.id)">
+                <i class="fas fa-pulse"></i>
+                x
+              </button>
+            </td>
+            <td>
+              {{cart.product.title}}
+              <div class="text-success" v-if="cart.coupon">
+                已套用優惠券
+              </div>
+            </td>
+            <td>
+              <div class="input-group input-group-sm">
+                {{cart.qty}} / 個
+              </div>
+            </td>
+            <td class="text-end">
+              {{cart.product.origin_price}}
+              <small class="text-success">折扣價：</small>
+              {{cart.product.price}}
+            </td>
+          </tr>
+        </tbody>
+        <tfoot>
+          <tr>
+            <td colspan="3" class="text-end">總計</td>
+            <td class="text-end">{{total}}</td>
+          </tr>
+          <tr>
+            <td colspan="3" class="text-end text-success">折扣價</td>
+            <td class="text-end text-success">{{final_total}}</td>
+          </tr>
+        </tfoot>
+      </table>
+    </teleport>
+
+    <teleport to="#cart-list-loading" v-if="isMounted" :is-full-page="false">
+      <loading :active="isLoading" :is-full-page="false"></loading>
+    </teleport>
+  </script>
 
   <script type="text/x-template" id="order-info">
     <teleport to="#order-info-div" v-if="isMounted">
@@ -130,6 +241,7 @@
       </div>
     </div>
   </script>
+
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.1/dist/umd/popper.min.js"
