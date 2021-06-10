@@ -17,21 +17,28 @@
 <body>
   <div id="app">
     <div class="container">
-      <div class="mt-4">
-        <!-- 產品列表 -->
+      <!-- 產品列表 -->
+      <div class="mt-4" style="position: relative">
         <div id="product-list-table"></div>
-        <div id="product-list-pagination"></div>
-        <!-- 購物車列表 -->
+        <!-- loading is-full-page: false 時，只會作用在包住他的 container 底下（class="mt-4" div） -->
+        <div id="product-list-loading"></div>
+      </div>
+      <div id="product-list-pagination"></div>
+      <!-- 購物車列表 -->
+      <div style="position: relative">
         <div id="cart-delete-div"></div>
         <div id="cart-list-table"></div>
+        <div id="cart-list-loading"></div>
       </div>
       <!-- 訂購資訊 -->
-      <div id="order-info-div"></div>
+      <div style="position: relative">
+        <div id="order-info-div"></div>
+        <div id="order-info-loading"></div>
+      </div>
     </div>
-    <!-- Product Modal -->
-    <product-modal></product-modal>
 
     <!-- Components -->
+    <product-modal></product-modal>
     <product></product>
     <cart ref="cart-list-table"></cart>
     <order></order>
@@ -79,6 +86,10 @@
           </div>
         </v-form>
       </div>
+    </teleport>
+
+    <teleport to="#order-info-loading" v-if="isMounted">
+      <loading :active="isLoading" :is-full-page="false"></loading>
     </teleport>
   </script>
 
@@ -132,6 +143,10 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/vee-validate/4.1.17/vee-validate.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@vee-validate/i18n@4.1.17/dist/vee-validate-i18n.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@vee-validate/rules@4.1.17/dist/vee-validate-rules.min.js"></script>
+
+  <!-- vue loading overlay -->
+  <script src="https://cdn.jsdelivr.net/npm/vue-loading-overlay@4"></script>
+  <link href="https://cdn.jsdelivr.net/npm/vue-loading-overlay@4/dist/vue-loading.css" rel="stylesheet">
 
   <script type="module" src="index.js"></script>
 </body>

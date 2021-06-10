@@ -7,7 +7,7 @@ const instance = axios.create({
 import 'https://unpkg.com/mitt/dist/mitt.umd.js';
 const emitter = mitt();
 
-// other
+// import other component
 import pagination from './component/pagination.js'
 
 const app = Vue.createApp({
@@ -20,6 +20,7 @@ app.component('product', {
   data () {
     return {
       isMounted: false,
+      isLoading: true,
       products: [],
       page: {
         total: 0,
@@ -81,6 +82,10 @@ app.component('product', {
       <pagination :total-pages="page.total" :current-page="page.current" :has-pre-page="page.hasPre"
         :has-next-page="page.hasNext" @change-page="getProducts"></pagination>
     </teleport>
+
+    <teleport to="#product-list-loading" v-if="isMounted">
+      <loading :active="isLoading" :is-full-page="false"></loading>
+    </teleport>
   `,
   methods: {
     // FIXME: 應該有更好的方法~
@@ -94,10 +99,13 @@ app.component('product', {
     },
 
     getProducts (page = 1) {
+      this.showLoading(true);
+
       instance.get(`/products?page=${page}`)
         .then(res => {
           if (!res.data.success) {
             alert('獲取產品列表資料失敗！');
+            this.showLoading(false);
             return;
           }
 
@@ -106,17 +114,14 @@ app.component('product', {
           this.page.current = res.data.pagination.current_page;
           this.page.hasPre = res.data.pagination.has_pre;
           this.page.hasNext = res.data.pagination.has_next;
+          this.showLoading(false);
         })
         .catch(err => console.dir(err))
     },
 
     getProduct (productId) {
-      console.log(`getProduct(): ${productId}`);
-
       instance.get(`/product/${productId}`)
         .then(res => {
-          console.log(res.data)
-
           if (!res.data.success) {
             alert('獲取產品詳細資料失敗！');
             return;
@@ -128,8 +133,11 @@ app.component('product', {
     },
 
     addToCart (productId) {
-      console.log(`addToCart(): ${productId}`)
       emitter.emit('addToCart', { id: productId, qty: 1 });
+    },
+
+    showLoading (isShow) {
+      this.isLoading = isShow;
     }
   },
 });
@@ -138,6 +146,7 @@ app.component('cart', {
   data () {
     return {
       isMounted: false,
+      isLoading: false,
       carts: [],
       total: 0,
       final_total: 0
@@ -213,13 +222,17 @@ app.component('cart', {
         </tfoot>
       </table>
     </teleport>
+
+    <teleport to="#cart-list-loading" v-if="isMounted" :is-full-page="false">
+      <loading :active="isLoading" :is-full-page="false"></loading>
+    </teleport>
   `,
   methods: {
     getCarts () {
+      this.showLoading(true);
+
       instance.get(`/cart`)
         .then(res => {
-          console.log(res.data.data);
-
           if (!res.data.success) {
             alert('獲取購物車列表資料失敗！');
             return;
@@ -228,11 +241,14 @@ app.component('cart', {
           this.carts = res.data.data.carts;
           this.total = res.data.data.total;
           this.final_total = res.data.data.final_total;
+          this.showLoading(false);
         })
         .catch(err => console.dir(err))
     },
 
     addToCart (product) {
+      this.showLoading(true);
+
       const data = {
         "data": {
           "product_id": product.id,
@@ -245,6 +261,7 @@ app.component('cart', {
 
           if (!res.data.success) {
             alert('新增至購物車失敗！');
+            this.showLoading(false);
             return;
           }
 
@@ -255,13 +272,14 @@ app.component('cart', {
     },
 
     deleteCart (cardId) {
-      console.log(`deleteCart() : ${cardId}`);
+      this.showLoading(true);
 
       instance.delete(`/cart/${cardId}`)
         .then(res => {
 
           if (!res.data.success) {
             alert('刪除購物車資料失敗！');
+            this.showLoading(false);
             return;
           }
 
@@ -271,19 +289,24 @@ app.component('cart', {
     },
 
     deleteAllCarts () {
-      console.log(`deleteAllCarts()`);
+      this.showLoading(true);
 
       instance.delete(`/carts`)
         .then(res => {
 
           if (!res.data.success) {
             alert('清除購物車資料失敗！');
+            this.showLoading(false);
             return;
           }
 
           this.getCarts();
         })
         .catch(err => console.dir(err))
+    },
+
+    showLoading (isShow) {
+      this.isLoading = isShow;
     }
   },
 });
@@ -292,6 +315,7 @@ app.component('order', {
   data () {
     return {
       isMounted: false,
+      isLoading: false,
       user: {
         email: '',
         name: '',
@@ -311,6 +335,8 @@ app.component('order', {
   template: '#order-info',
   methods: {
     sendForm () {
+      this.showLoading(true);
+
       // check 購物車有無商品 // FIXME: 抓不到 ref 耶！？
       // console.log(this.$refs['cart-list-table'].carts.length);
       // if (this.$refs['cart-list-table'].carts.length === 0) {
@@ -320,6 +346,7 @@ app.component('order', {
       // 所以我在 cart component 加了一個 watch，裡面放 mitt，發更新購物車數量的事件。並在 orderInfo 加上監聽
       if (this.cartsAmount === 0) {
         alert('購物車內無商品可結帳！');
+        this.showLoading(false);
         return;
       }
 
@@ -333,10 +360,9 @@ app.component('order', {
       instance.post(`/order`, data)
         .then(res => {
 
-          console.log(res.data)
-
           if (!res.data.success) {
             alert('新增訂單失敗！');
+            this.showLoading(false);
             return;
           }
 
@@ -346,8 +372,13 @@ app.component('order', {
           this.message = ''; // vee-validate 沒辦法用 textarea
 
           emitter.emit('updateCarts');
+          this.showLoading(false);
         })
         .catch(err => console.dir(err))
+    },
+
+    showLoading (isShow) {
+      this.isLoading = isShow;
     }
   },
 });
@@ -392,19 +423,19 @@ app.component('productModal', {
   },
 });
 
-// Enroll vee-validate component
+// Enroll global components
 app.component('VForm', VeeValidate.Form);
 app.component('VField', VeeValidate.Field);
 app.component('ErrorMessage', VeeValidate.ErrorMessage);
+app.component('loading', VueLoading);
 
-// Activate the locale
+// vee-validate setting: Activate the locale, vee-validate rules
 VeeValidateI18n.loadLocaleFromURL('./zh_TW.json');
 VeeValidate.configure({
   generateMessage: VeeValidateI18n.localize('zh_TW'),
   validateOnInput: true, // 調整為輸入字元立即進行驗證
 });
 
-// Add vee-validate rules
 VeeValidate.defineRule('required', VeeValidateRules['required']);
 VeeValidate.defineRule('email', VeeValidateRules['email']);
 VeeValidate.defineRule('numeric', VeeValidateRules['numeric']);
