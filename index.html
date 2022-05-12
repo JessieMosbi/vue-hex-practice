@@ -1,15 +1,266 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-Hant-TW">
 
 <head>
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Document</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-eOJMYsd53ii+scO/bJGFsiCZc+5NDVN2yr8+0RDqr0Ql0h+rP48ckxlpbzKgwra6" crossorigin="anonymous">
+  <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.9.0/css/all.min.css'
+    integrity='sha512-q3eWabyZPc1XTCmF+8/LuE1ozpg5xxn7iO89yfSOd5/oKvyqLngoNGsx8jq92Y8eXJ/IRxQbEC+FGSYxtk2oiw=='
+    crossorigin='anonymous' />
+  <script src="https://unpkg.com/vue@next"></script>
 </head>
 
 <body>
-  Hi!!!
+  <div id="app">
+    <div class="container">
+      <!-- 產品列表 -->
+      <div class="mt-4" style="position: relative">
+        <div id="product-list-table"></div>
+        <!-- loading is-full-page: false 時，只會作用在包住他的 container 底下（class="mt-4" div） -->
+        <div id="product-list-loading"></div>
+      </div>
+      <div id="product-list-pagination"></div>
+      <!-- 購物車列表 -->
+      <div style="position: relative">
+        <div id="cart-delete-div"></div>
+        <div id="cart-list-table"></div>
+        <div id="cart-list-loading"></div>
+      </div>
+      <!-- 訂購資訊 -->
+      <div style="position: relative">
+        <div id="order-info-div"></div>
+        <div id="order-info-loading"></div>
+      </div>
+    </div>
+
+    <!-- Components -->
+    <product-modal></product-modal>
+    <product></product>
+    <cart ref="cart-list-table"></cart>
+    <order></order>
+  </div>
+
+  <!-- x-templates -->
+  <script type="text/x-template" id="product-list">
+    <teleport to="#product-list-table" v-if="isMounted">
+      <table class="table align-middle">
+        <thead>
+          <tr>
+            <th>圖片</th>
+            <th>商品名稱</th>
+            <th>價格</th>
+            <th>功能</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="(product, index) in products" :key="index">
+            <td style="width: 200px">
+              <div :style="getImageStyle(product.imageUrl)" v-if="product.imagesUrl"></div>
+            </td>
+            <td>
+              {{product.title}}
+            </td>
+            <td>
+              <div class="h5">{{product.origin_price}} 元</div>
+              <del class="h6">原價 {{product.origin_price}} 元</del>
+              <div class="h5">現在只要 {{product.price}} 元</div>
+            </td>
+            <td>
+              <div class="btn-group btn-group-sm">
+                <button type="button" class="btn btn-outline-secondary" @click="getProduct(product.id)">
+                  <i class="fas fa-pulse"></i>
+                  查看更多
+                </button>
+                <button type="button" class="btn btn-outline-danger" @click="addToCart(product.id)">
+                  <i class="fas fa-pulse"></i>
+                  加到購物車
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </teleport>
+
+    <teleport to="#product-list-pagination" v-if="isMounted">
+      <pagination :total-pages="page.total" :current-page="page.current" :has-pre-page="page.hasPre"
+        :has-next-page="page.hasNext" @change-page="getProducts"></pagination>
+    </teleport>
+
+    <teleport to="#product-list-loading" v-if="isMounted">
+      <loading :active="isLoading" :is-full-page="false"></loading>
+    </teleport>
+  </script>
+
+  <script type="text/x-template" id="cart-list">
+    <teleport to="#cart-delete-div" v-if="isMounted">
+      <div class="text-end">
+        <button class="btn btn-outline-danger" type="button" @click="deleteAllCarts">清空購物車</button>
+      </div>
+    </teleport>
+    <teleport to="#cart-list-table" v-if="isMounted">
+      <table class="table align-middle">
+        <thead>
+          <tr>
+            <th></th>
+            <th>品名</th>
+            <th style="width: 150px">數量/單位</th>
+            <th>單價</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="cart in carts" :key="cart.id">
+            <td>
+              <button type="button" class="btn btn-outline-danger btn-sm" @click="deleteCart(cart.id)">
+                <i class="fas fa-pulse"></i>
+                x
+              </button>
+            </td>
+            <td>
+              {{cart.product.title}}
+              <div class="text-success" v-if="cart.coupon">
+                已套用優惠券
+              </div>
+            </td>
+            <td>
+              <div class="input-group input-group-sm">
+                {{cart.qty}} / 個
+              </div>
+            </td>
+            <td class="text-end">
+              {{cart.product.origin_price}}
+              <small class="text-success">折扣價：</small>
+              {{cart.product.price}}
+            </td>
+          </tr>
+        </tbody>
+        <tfoot>
+          <tr>
+            <td colspan="3" class="text-end">總計</td>
+            <td class="text-end">{{total}}</td>
+          </tr>
+          <tr>
+            <td colspan="3" class="text-end text-success">折扣價</td>
+            <td class="text-end text-success">{{final_total}}</td>
+          </tr>
+        </tfoot>
+      </table>
+    </teleport>
+
+    <teleport to="#cart-list-loading" v-if="isMounted" :is-full-page="false">
+      <loading :active="isLoading" :is-full-page="false"></loading>
+    </teleport>
+  </script>
+
+  <script type="text/x-template" id="order-info">
+    <teleport to="#order-info-div" v-if="isMounted">
+      <div class="my-5 row justify-content-center">
+        <v-form v-slot="{ errors }" class="col-md-6" @submit="sendForm" ref="user-form">
+          <div class="mb-3">
+            <label for="email" class="form-label">Email</label>
+            <v-field id="email" name="email" type="email" class="form-control"
+              :class="{ 'is-invalid': errors['email'] }" rules="required|email" placeholder="請輸入 Email" v-model="user.email"></v-field>
+            <error-message name="email" class="invalid-feedback"></error-message>
+          </div>
+
+          <div class="mb-3">
+            <label for="name" class="form-label">收件人姓名</label>
+            <v-field id="name" name="姓名" type="text" class="form-control" :class="{ 'is-invalid': errors['姓名'] }"
+              rules="required" placeholder="請輸入姓名" v-model="user.name"></v-field>
+            <error-message name="姓名" class="invalid-feedback"></error-message>
+          </div>
+
+          <div class="mb-3">
+            <label for="tel" class="form-label">收件人電話</label>
+            <v-field id="tel" name="電話" type="text" class="form-control" :class="{ 'is-invalid': errors['電話'] }"
+              rules="required|numeric|min:8" placeholder="請輸入電話" v-model="user.tel"></v-field>
+            <error-message name="電話" class="invalid-feedback"></error-message>
+          </div>
+
+          <div class="mb-3">
+            <label for="address" class="form-label">收件人地址</label>
+            <v-field id="address" name="地址" type="text" class="form-control" :class="{ 'is-invalid': errors['地址'] }"
+              placeholder="請輸入地址" rules="required" v-model="user.address"></v-field>
+            <error-message name="地址" class="invalid-feedback"></error-message>
+          </div>
+
+          <div class="mb-3">
+            <label for="message" class="form-label">留言</label>
+            <textarea type="text" name="" id="message" class="form-control" cols="30" rows="10" v-model="message"></textarea>
+          </div>
+          <div class="text-end">
+            <button type="submit" class="btn btn-danger">送出訂單</button>
+          </div>
+        </v-form>
+      </div>
+    </teleport>
+
+    <teleport to="#order-info-loading" v-if="isMounted">
+      <loading :active="isLoading" :is-full-page="false"></loading>
+    </teleport>
+  </script>
+
+  <script type="text/x-template" id="product-modal">
+    <div class="modal fade" id="productModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+    aria-hidden="true" ref="productModal">
+      <div class="modal-dialog modal-xl" role="document">
+        <div class="modal-content border-0">
+          <div class="modal-header bg-dark text-white">
+            <h5 class="modal-title" id="exampleModalLabel">
+              <span>{{product.title}}</span>
+            </h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <div class="row">
+              <div class="col-sm-6">
+                <img class="img-fluid" :src="product.imageUrl" :alt="`${product.title} 商品的圖片`">
+              </div>
+              <div class="col-sm-6">
+                <span class="badge bg-primary rounded-pill">{{product.category}}</span>
+                <p>商品描述：{{product.description}}</p>
+                <p>商品內容：{{product.content}}</p>
+                <div class="h5">{{product.price}} 元</div>
+                <del class="h6">原價 {{product.origin_price}} 元</del>
+                <div class="h5">現在只要 {{product.price}} 元</div>
+                <div>
+                  <div class="input-group">
+                    <input type="number" class="form-control" min="1" v-model="addToCartQty">
+                    <button type="button" class="btn btn-primary" @click="addToCart">加入購物車</button>
+                  </div>
+                </div>
+              </div>
+              <!-- col-sm-6 end -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </script>
+
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.1/dist/umd/popper.min.js"
+    integrity="sha384-SR1sx49pcuLnqZUnnPwx6FCym0wLsk5JZuNx2bPPENzswTNFaQU1RDvt3wT4gWFG"
+    crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.min.js"
+    integrity="sha384-j0CNLUeiqtyaRmlzUHCPZ+Gy5fQu0dQ6eZ/xAww941Ai1SxSY+0EQqNXNE6DZiVc"
+    crossorigin="anonymous"></script>
+
+  <!-- vee-validate -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/vee-validate/4.1.17/vee-validate.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@vee-validate/i18n@4.1.17/dist/vee-validate-i18n.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@vee-validate/rules@4.1.17/dist/vee-validate-rules.min.js"></script>
+
+  <!-- vue loading overlay -->
+  <script src="https://cdn.jsdelivr.net/npm/vue-loading-overlay@4"></script>
+  <link href="https://cdn.jsdelivr.net/npm/vue-loading-overlay@4/dist/vue-loading.css" rel="stylesheet">
+
+  <script type="module" src="index.js"></script>
 </body>
 
 </html>
